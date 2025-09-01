@@ -47,17 +47,17 @@
     }
     .menu-container {
       width: var(--menu-width);
-      background: rgba(12, 12, 12, 0.96);
+      background: none !important;
+      background-color: transparent !important;
       border-radius: 16px;
       overflow: hidden;
-      backdrop-filter: blur(9px) saturate(145%);
+      backdrop-filter: none !important;
       border: 1px solid rgba(var(--menu-color), 0.25);
-      box-shadow: 0 8px 36px rgba(0,0,0,0.33), 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.07);
+      box-shadow: none !important;
       display: flex;
       flex-direction: column;
       position: relative;
       justify-content: flex-start;
-      background-clip: padding-box;
     }
     .banner {
       position: relative;
@@ -85,7 +85,7 @@
       pointer-events: none;
     }
     .current-category {
-      background: linear-gradient(135deg, #000000 0%, rgba(var(--menu-color), 0.09) 50%, #000000 100%);
+      background: rgba(var(--menu-color), 0.15) !important;
       color: #fff;
       padding: 8px 18px 8px 18px;
       font-size: 13px;
@@ -396,7 +396,7 @@
       text-align: center;
     }
     .footer {
-      background: linear-gradient(135deg, #000000 0%, #0a0000 100%);
+      background: rgba(var(--menu-color), 0.1) !important;
       display: flex;
       justify-content: space-between;
       align-items: center;
