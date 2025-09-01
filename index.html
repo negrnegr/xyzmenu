@@ -8,7 +8,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --menu-color: 255, 20, 20;
+      --menu-color: 138, 43, 226;
       --menu-x: 0px;
       --menu-y: 0px;
       --menu-alpha: 1;
@@ -119,13 +119,14 @@
       min-height: 0;
       overflow: hidden;
       position: relative;
-      padding: var(--menu-list-padding) 0 0 0;
+      padding: var(--menu-list-padding) 0 20px 0;
+      background: rgba(64, 64, 64, 0.9);
     }
     .menu-item {
       height: var(--menu-item-height);
-      padding: 0 14px;
+      padding: 0 8px;
       margin: 0 0 2px 0;
-      border-radius: 10px;
+      border-radius: 4px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -136,16 +137,16 @@
       border: 1.7px solid transparent;
       transition: border 0.14s, background 0.12s, opacity 0.14s;
       position: absolute;
-      width: calc(100% - 28px);
-      left: 14px;
+      width: calc(100% - 0px);
+      left: 0px;
       pointer-events: none;
       opacity: 0.88;
     }
     .menu-item:last-child {
-      margin-bottom: calc(var(--menu-item-height) * 1.5);
+      margin-bottom: calc(var(--menu-item-height) * 0.8);
     }
     .menu-item.selected {
-      background: linear-gradient(135deg, rgba(var(--menu-color), 0.17) 0%, rgba(var(--menu-color), 0.10) 100%);
+      background: rgba(48, 48, 48, 1.0);
       border: 2px solid rgb(var(--menu-color));
       opacity: 1;
       z-index: 2;
@@ -241,18 +242,7 @@
       user-select: none;
     }
     .custom-scrollbar {
-      width: 7px;
-      background: linear-gradient(180deg, rgba(15, 15, 15, 0.9) 0%, rgba(25, 10, 10, 0.9) 100%);
-      border-radius: 8px;
-      border: 1px solid rgba(var(--menu-color), 0.8);
-      position: relative;
-      backdrop-filter: blur(8px);
-      margin-top: 74px;
-      margin-bottom: 50px;
-      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.24);
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
+      display: none !important;
     }
     .scrollbar-thumb {
       width: 5px;
@@ -351,9 +341,9 @@
       left: 50%; top: 50%;
       transform: translate(-50%, -50%);
       background: #181818;
-      border-radius: 10px;
+      border-radius: 4px;
       border: 1.2px solid rgb(var(--menu-color));
-      z-index: 99;
+      z-index: 999;
       padding: 11px 16px;
       display: none;
       flex-direction: column;
@@ -363,7 +353,7 @@
       box-shadow: 0 2px 10px 2px rgba(var(--menu-color), 0.13);
     }
     .color-picker-canvas {
-      border-radius: 6px;
+      border-radius: 3px;
       border: 1px solid rgb(var(--menu-color));
       margin-top: 3px;
       margin-bottom: 6px;
@@ -685,20 +675,17 @@ function renderMenu() {
   const menuList = document.getElementById('menuList');
   menuList.innerHTML = '';
   const items = menuStructure[currentMenu];
-  // Dynamically calculate how many items to show
   const visibleCount = Math.min(items.length, VISIBLE_ITEMS);
-  // Dynamically set menu height
   const dynamicHeight = bannerHeight + categoryBarHeight + (visibleCount * ITEM_HEIGHT) + footerHeight;
   menuContainer.style.height = dynamicHeight + "px";
-  // Dynamically set scrollbar height
   customScrollbar.style.height = (visibleCount * ITEM_HEIGHT) + "px";
   items.forEach((item, idx) => {
     const menuItem = createMenuItem(item, idx);
     menuItem.classList.toggle('selected', idx === currentIndex);
     menuItem.style.position = 'absolute';
     menuItem.style.top = `${(idx-viewportStart)*ITEM_HEIGHT}px`;
-    menuItem.style.left = '14px';
-    menuItem.style.width = 'calc(100% - 28px)';
+    menuItem.style.left = '0px';
+    menuItem.style.width = 'calc(100% - 0px)';
     menuItem.style.display = idx-viewportStart >= 0 && idx-viewportStart < visibleCount ? 'flex' : 'none';
     menuList.appendChild(menuItem);
   });
@@ -888,18 +875,25 @@ function openColorPicker() {
   colorPickerModal.style.display = 'flex';
   drawColorPicker();
   updateColorPickerPreview(menuColor);
+  document.body.style.pointerEvents = 'none';
+  colorPickerModal.style.pointerEvents = 'all';
+  colorPickerModal.focus();
 }
+
 function closeColorPicker() {
   colorPickerModal.style.display = 'none';
+  document.body.style.pointerEvents = 'all';
 }
+
 function confirmColorPicker() {
   menuColor = { ...currentPickRGBA };
   document.documentElement.style.setProperty('--menu-color', `${menuColor.r}, ${menuColor.g}, ${menuColor.b}`);
   document.documentElement.style.setProperty('--menu-alpha', menuColor.a);
   document.documentElement.style.setProperty('--banner-hue', getHueFromRGB(menuColor.r, menuColor.g, menuColor.b) + 'deg');
-  colorPickerModal.style.display = 'none';
+  closeColorPicker();
   renderMenu();
 }
+
 function drawColorPicker() {
   const ctx = colorCanvas.getContext('2d');
   let gradient = ctx.createLinearGradient(0, 0, colorCanvas.width, 0);
@@ -925,10 +919,12 @@ function drawColorPicker() {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, colorCanvas.width, colorCanvas.height);
 }
+
 function updateColorPickerPreview(rgba) {
   colorPickerPreview.style.background = `rgba(${rgba.r},${rgba.g},${rgba.b},${rgba.a})`;
   colorPickerValues.textContent = `rgba(${rgba.r},${rgba.g},${rgba.b},${Math.round(rgba.a*100)/100})`;
 }
+
 colorCanvas.onclick = function(e) {
   let rect = colorCanvas.getBoundingClientRect();
   let x = ((e.clientX - rect.left) / colorCanvas.clientWidth) * colorCanvas.width;
@@ -944,11 +940,18 @@ colorCanvas.onclick = function(e) {
   }
   updateColorPickerPreview(currentPickRGBA);
 };
-colorPickerModal.addEventListener('keydown', function(e) {
-  if (e.key === 'Backspace') closeColorPicker();
-  if (e.key === 'Enter') confirmColorPicker();
+
+colorPickerModal.addEventListener('mousedown', function(e) {
+  if (e.target === colorPickerModal) {
+    closeColorPicker();
+  }
 });
-colorPickerModal.tabIndex = 0;
+
+window.addEventListener('click', function(e) {
+  if (colorPickerModal.style.display === 'flex' && !colorPickerModal.contains(e.target)) {
+    closeColorPicker();
+  }
+});
 let menuColor = { r: 255, g: 20, b: 20, a: 1 };
 let currentPickRGBA = { r: 255, g: 20, b: 20, a: 1 };
 function getHueFromRGB(r,g,b) {
