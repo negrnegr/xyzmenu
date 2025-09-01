@@ -120,7 +120,7 @@
       overflow: hidden;
       position: relative;
       padding: var(--menu-list-padding) 0 20px 0;
-      background: rgba(64, 64, 64, 0.9);
+      background: rgba(0, 0, 0, 0.9);
     }
     .menu-item {
       height: var(--menu-item-height);
@@ -146,8 +146,8 @@
       margin-bottom: calc(var(--menu-item-height) * 0.8);
     }
     .menu-item.selected {
-      background: rgba(48, 48, 48, 1.0);
-      border: 2px solid rgb(var(--menu-color));
+      background: rgba(0, 0, 0, 1.0);
+      border: 3px solid rgb(var(--menu-color));
       opacity: 1;
       z-index: 2;
     }
@@ -171,10 +171,10 @@
       margin-left: 6px;
     }
     .checkbox-bar {
-      width: 20px; height: 12px;
+      width: 28px; height: 16px;
       background: rgba(255, 255, 255, 0.10);
-      border-radius: 6px;
-      border: 1.2px solid rgba(var(--menu-color), 0.5);
+      border-radius: 8px;
+      border: 2px solid rgba(var(--menu-color), 0.7);
       position: relative;
       display: flex;
       align-items: center;
@@ -182,20 +182,21 @@
       transition: all 0.13s;
       box-sizing: border-box;
       margin-right: 1.2px;
+      box-shadow: 0 0 8px 1px rgba(var(--menu-color), 0.2);
     }
     .checkbox-knob {
-      width: 8px; height: 8px; border-radius: 50%;
+      width: 12px; height: 12px; border-radius: 50%;
       background: #151515;
-      border: 1.2px solid rgb(var(--menu-color));
-      position: absolute; left: 1.4px; top: 1.5px;
+      border: 2px solid rgb(var(--menu-color));
+      position: absolute; left: 2px; top: 2px;
       transition: left 0.13s cubic-bezier(0.4, 0.68, 0.45, 0.94), background 0.11s;
-      box-shadow: 0 0 3px 1px rgba(var(--menu-color), 0.09);
+      box-shadow: 0 0 6px 2px rgba(var(--menu-color), 0.15);
     }
     .checkbox-bar.checked .checkbox-knob {
-      left: 10px;
+      left: 14px;
       background: rgb(var(--menu-color));
       border-color: #fff;
-      box-shadow: 0 0 4px 1.2px rgba(var(--menu-color), 0.17);
+      box-shadow: 0 0 8px 2px rgba(var(--menu-color), 0.3);
     }
     .slider-bar {
       width: 52px; height: 13px;
@@ -386,14 +387,14 @@
       text-align: center;
     }
     .footer {
-      background: rgba(var(--menu-color), 0.1) !important;
+      background: rgba(0, 0, 0, 1.0) !important;
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 6px 18px;
       font-size: 11.5px;
       color: rgba(var(--menu-color), 0.82);
-      border-top: 1px solid rgba(var(--menu-color), 0.18);
+      border-top: 2px solid rgba(var(--menu-color), 0.4);
       font-weight: 600;
       letter-spacing: 0.38px;
       border-top-left-radius: 8px;
