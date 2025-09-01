@@ -22,13 +22,18 @@
       --menu-width: 340px;
     }
     html, body {
-      background: transparent !important;
+      background: none !important;
+      background-color: transparent !important;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       height: 100vh;
       width: 100vw;
       overflow: hidden;
       margin: 0;
       padding: 0;
+    }
+    html::before, html::after, body::before, body::after {
+      background: none !important;
+      background-color: transparent !important;
     }
     .menu-wrapper {
       display: flex;
