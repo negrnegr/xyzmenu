@@ -22,13 +22,12 @@
       --menu-width: 340px;
     }
     body {
-      background: #0a0a0a;
+      background: transparent;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       height: 100vh;
       width: 100vw;
       overflow: hidden;
     }
-    /* Removed outer black radial glow */
     .menu-wrapper {
       display: flex;
       align-items: flex-start;
@@ -38,11 +37,9 @@
       top: 50%;
       transform: translate(var(--menu-x), var(--menu-y));
       user-select: none;
-      /* No outer box-shadow, no dark background */
     }
     .menu-container {
       width: var(--menu-width);
-      /* Height will be set inline dynamically! */
       background: rgba(12, 12, 12, 0.96);
       border-radius: 16px;
       overflow: hidden;
@@ -237,10 +234,8 @@
       color: #fff;
       user-select: none;
     }
-    /* Scrollbar */
     .custom-scrollbar {
       width: 7px;
-      /* Height will be set dynamically! */
       background: linear-gradient(180deg, rgba(15, 15, 15, 0.9) 0%, rgba(25, 10, 10, 0.9) 100%);
       border-radius: 8px;
       border: 1px solid rgba(var(--menu-color), 0.8);
@@ -274,7 +269,6 @@
       pointer-events: none;
       transition: height 0.12s;
     }
-    /* Spectator Overlay */
     .spectator-overlay {
       position: fixed;
       background: rgba(13, 13, 18, 0.88);
@@ -346,7 +340,6 @@
       box-shadow: none !important;
       border-radius: 0 !important;
     }
-    /* Color Picker Modal */
     .color-picker-modal {
       position: fixed;
       left: 50%; top: 50%;
@@ -908,7 +901,7 @@ function drawColorPicker() {
   gradient.addColorStop(0, '#ff0000');
   gradient.addColorStop(1 / 6, '#ffff00');
   gradient.addColorStop((1 / 6) * 2, '#00ff00');
-  gradient.addColorStop((1 / 6) * 3, '#00ffff');
+  gradient.addColorStop((1 / 6) * 3, '00ffff');
   gradient.addColorStop((1 / 6) * 4, '#0000ff');
   gradient.addColorStop((1 / 6) * 5, '#ff00ff');
   gradient.addColorStop(1, '#ff0000');
