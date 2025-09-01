@@ -21,12 +21,14 @@
       --footer-height: 23px;
       --menu-width: 340px;
     }
-    body {
-      background: transparent;
+    html, body {
+      background: transparent !important;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       height: 100vh;
       width: 100vw;
       overflow: hidden;
+      margin: 0;
+      padding: 0;
     }
     .menu-wrapper {
       display: flex;
@@ -136,7 +138,6 @@
     }
     .menu-item:last-child {
       margin-bottom: calc(var(--menu-item-height) * 1.5);
-
     }
     .menu-item.selected {
       background: linear-gradient(135deg, rgba(var(--menu-color), 0.17) 0%, rgba(var(--menu-color), 0.10) 100%);
@@ -598,6 +599,36 @@ const menuWrapper = document.getElementById('menuWrapper');
 const menuContainer = document.getElementById('menuContainer');
 const customScrollbar = document.getElementById('customScrollbar');
 let menuOffsetX = 0, menuOffsetY = 0, isDragging = false, dragStartX = 0, dragStartY = 0;
+
+// MESSAGE LISTENER FOR LUA COMMUNICATION
+window.addEventListener("message", function(event) {
+    let data;
+    try {
+        data = JSON.parse(event.data);
+    } catch (e) {
+        return;
+    }
+    
+    if (data.action === "navigate") {
+        if (data.direction === "up") navigateUp();
+        if (data.direction === "down") navigateDown();
+        if (data.direction === "left") navigateLeft();
+        if (data.direction === "right") navigateRight();
+    }
+    
+    if (data.action === "select") selectItem();
+    if (data.action === "back") goBack();
+    if (data.action === "updateColor") {
+        if (data.r && data.g && data.b) {
+            document.documentElement.style.setProperty('--menu-color', `${data.r}, ${data.g}, ${data.b}`);
+            if (data.a) document.documentElement.style.setProperty('--menu-alpha', data.a);
+        }
+    }
+    if (data.action === "updateBanner" && data.url) {
+        document.getElementById('bannerImage').src = data.url;
+    }
+});
+
 function getDynamicCarFont(car) {
   if (car.length >= 20) return "11px";
   if (car.length >= 15) return "12px";
@@ -767,13 +798,13 @@ function selectItem() {
       renderMenu();
       break;
     case 'carselector':
-      alert(`Spawned car: ${carNames[selectedCarIndex]}`);
+      console.log(`Spawned car: ${carNames[selectedCarIndex]}`);
       break;
     case 'color':
       openColorPicker();
       break;
     case 'action':
-      alert(`Action: ${item.name}`);
+      console.log(`Action: ${item.name}`);
       break;
   }
 }
@@ -789,41 +820,10 @@ function goBack() {
     renderMenu();
   }
 }
-document.addEventListener('keydown', (e) => {
-  if (colorPickerModal.style.display === 'flex') {
-    if (e.key === 'Backspace') closeColorPicker();
-    if (e.key === 'Enter') confirmColorPicker();
-    return;
-  }
-  switch(e.key) {
-    case 'ArrowDown':
-    case 's':
-    case 'S':
-      e.preventDefault(); navigateDown(); break;
-    case 'ArrowUp':
-    case 'w':
-    case 'W':
-      e.preventDefault(); navigateUp(); break;
-    case 'ArrowLeft':
-    case 'a':
-    case 'A':
-      e.preventDefault(); navigateLeft(); break;
-    case 'ArrowRight':
-    case 'd':
-    case 'D':
-      e.preventDefault(); navigateRight(); break;
-    case 'Enter':
-    case ' ':
-      e.preventDefault(); selectItem(); break;
-    case 'Backspace':
-      e.preventDefault(); goBack(); break;
-  }
-});
+// Remove original keyboard handlers - only use Lua communication now
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('selectstart', e => e.preventDefault());
 document.addEventListener('dragstart', e => e.preventDefault());
-document.body.setAttribute('tabindex', '0');
-document.body.focus();
 function updateSpectatorOverlay() {
   const spec = menuStructure.spectator;
   if (spec[0].checked) {
@@ -901,7 +901,7 @@ function drawColorPicker() {
   gradient.addColorStop(0, '#ff0000');
   gradient.addColorStop(1 / 6, '#ffff00');
   gradient.addColorStop((1 / 6) * 2, '#00ff00');
-  gradient.addColorStop((1 / 6) * 3, '00ffff');
+  gradient.addColorStop((1 / 6) * 3, '#00ffff');
   gradient.addColorStop((1 / 6) * 4, '#0000ff');
   gradient.addColorStop((1 / 6) * 5, '#ff00ff');
   gradient.addColorStop(1, '#ff0000');
@@ -967,6 +967,7 @@ function getHueFromRGB(r,g,b) {
 document.documentElement.style.setProperty('--banner-hue', getHueFromRGB(255,20,20) + 'deg');
 renderMenu();
 updateMenuPosition();
+console.log("XYZ Menu loaded - ready for Lua communication");
 </script>
 </body>
 </html>
