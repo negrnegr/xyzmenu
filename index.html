@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=400, initial-scale=1.0"/>
+  <title>XYZ MENU</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --menu-color: 255, 20, 20;
+      --menu-x: 0px;
+      --menu-y: 0px;
+      --menu-alpha: 1;
+      --banner-hue: 0deg;
+      --menu-item-height: 41px;
+      --menu-visible-items: 9;
+      --menu-list-padding: 6px;
+      --banner-height: 54px;
+      --categorybar-height: 23px;
+      --footer-height: 23px;
+      --menu-width: 340px;
+    }
+    body {
+      background: #0a0a0a;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+    /* Removed outer black radial glow */
+    .menu-wrapper {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(var(--menu-x), var(--menu-y));
+      user-select: none;
+      /* No outer box-shadow, no dark background */
+    }
+    .menu-container {
+      width: var(--menu-width);
+      /* Height will be set inline dynamically! */
+      background: rgba(12, 12, 12, 0.96);
+      border-radius: 16px;
+      overflow: hidden;
+      backdrop-filter: blur(9px) saturate(145%);
+      border: 1px solid rgba(var(--menu-color), 0.25);
+      box-shadow: 0 8px 36px rgba(0,0,0,0.33), 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.07);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      justify-content: flex-start;
+      background-clip: padding-box;
+    }
+    .banner {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px 16px 0 0;
+      height: var(--banner-height);
+      min-height: var(--banner-height);
+      background: none !important;
+      box-shadow: none;
+    }
+    .banner img {
+      width: 100%;
+      height: var(--banner-height);
+      display: block;
+      object-fit: cover;
+      filter: brightness(0.93) contrast(1.10) saturate(1.07) hue-rotate(var(--banner-hue, 0deg));
+      transition: filter 0.5s;
+    }
+    .banner::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 15px;
+      background: linear-gradient(transparent, rgba(12, 12, 12, 0.27));
+      pointer-events: none;
+    }
+    .current-category {
+      background: linear-gradient(135deg, #000000 0%, rgba(var(--menu-color), 0.09) 50%, #000000 100%);
+      color: #fff;
+      padding: 8px 18px 8px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      border-bottom: 1.5px solid rgba(var(--menu-color), 0.26);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      position: relative;
+      border-bottom-left-radius: 6px;
+      border-bottom-right-radius: 6px;
+      min-height: var(--categorybar-height);
+      line-height: 1.15;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .current-category::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 2.5px;
+      background: linear-gradient(90deg, transparent, rgb(var(--menu-color)), transparent);
+      border-radius: 0 0 8px 8px;
+    }
+    .menu-items {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+      position: relative;
+      padding: var(--menu-list-padding) 0 0 0;
+    }
+    .menu-item {
+      height: var(--menu-item-height);
+      padding: 0 14px;
+      margin: 0 0 2px 0;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(var(--menu-color), 0.85);
+      background: transparent;
+      border: 1.7px solid transparent;
+      transition: border 0.14s, background 0.12s, opacity 0.14s;
+      position: absolute;
+      width: calc(100% - 28px);
+      left: 14px;
+      pointer-events: none;
+      opacity: 0.88;
+    }
+    .menu-item:last-child {
+      margin-bottom: calc(var(--menu-item-height) * 1.5);
+
+    }
+    .menu-item.selected {
+      background: linear-gradient(135deg, rgba(var(--menu-color), 0.17) 0%, rgba(var(--menu-color), 0.10) 100%);
+      border: 2px solid rgb(var(--menu-color));
+      opacity: 1;
+      z-index: 2;
+    }
+    .menu-item.selected > span:first-child {
+      color: #fff;
+      text-shadow: 0 0 7px rgba(var(--menu-color), 0.33);
+    }
+    .menu-item > span:first-child {
+      color: #fff;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.20);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .arrow {
+      color: rgba(var(--menu-color), 0.7);
+      font-weight: 700;
+      font-size: 16px;
+      margin-left: 6px;
+    }
+    .checkbox-bar {
+      width: 20px; height: 12px;
+      background: rgba(255, 255, 255, 0.10);
+      border-radius: 6px;
+      border: 1.2px solid rgba(var(--menu-color), 0.5);
+      position: relative;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.13s;
+      box-sizing: border-box;
+      margin-right: 1.2px;
+    }
+    .checkbox-knob {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #151515;
+      border: 1.2px solid rgb(var(--menu-color));
+      position: absolute; left: 1.4px; top: 1.5px;
+      transition: left 0.13s cubic-bezier(0.4, 0.68, 0.45, 0.94), background 0.11s;
+      box-shadow: 0 0 3px 1px rgba(var(--menu-color), 0.09);
+    }
+    .checkbox-bar.checked .checkbox-knob {
+      left: 10px;
+      background: rgb(var(--menu-color));
+      border-color: #fff;
+      box-shadow: 0 0 4px 1.2px rgba(var(--menu-color), 0.17);
+    }
+    .slider-bar {
+      width: 52px; height: 13px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 7px;
+      border: 1.1px solid rgba(var(--menu-color), 0.45);
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-right: 1px;
+    }
+    .slider-knob {
+      width: 11px; height: 11px; border-radius: 50%;
+      background: #151515;
+      border: 1.2px solid rgb(var(--menu-color));
+      position: absolute; top: 1px; left: 0;
+      transition: left 0.11s cubic-bezier(0.4, 0.68, 0.45, 0.94), background 0.09s;
+      box-shadow: 0 0 2.5px 1px rgba(var(--menu-color), 0.08);
+      z-index: 2;
+    }
+    .slider-bar .slider-fill {
+      position: absolute; left: 0; top: 0; height: 100%;
+      background: linear-gradient(90deg, rgba(var(--menu-color), 0.16), rgba(var(--menu-color), 0.05));
+      border-radius: 7px 0 0 7px;
+      z-index: 1; pointer-events: none;
+      transition: width 0.13s cubic-bezier(0.4, 0.68, 0.45, 0.94);
+    }
+    .color-preview {
+      width: 14px; height: 14px;
+      background: rgba(var(--menu-color), var(--menu-alpha, 1));
+      border-radius: 4px;
+      border: 1.2px solid rgba(255,255,255,0.3);
+      cursor: pointer;
+      box-shadow: 0 0 5px 1px rgba(var(--menu-color), 0.12);
+      margin-right: 2px;
+    }
+    .car-name-dynamic {
+      display: inline-block;
+      min-width: 70px;
+      text-align: center;
+      font-family: monospace;
+      padding: 2px 0;
+      color: #fff;
+      user-select: none;
+    }
+    /* Scrollbar */
+    .custom-scrollbar {
+      width: 7px;
+      /* Height will be set dynamically! */
+      background: linear-gradient(180deg, rgba(15, 15, 15, 0.9) 0%, rgba(25, 10, 10, 0.9) 100%);
+      border-radius: 8px;
+      border: 1px solid rgba(var(--menu-color), 0.8);
+      position: relative;
+      backdrop-filter: blur(8px);
+      margin-top: 74px;
+      margin-bottom: 50px;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.24);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .scrollbar-thumb {
+      width: 5px;
+      min-height: 18px;
+      background: #111;
+      border-radius: 99px;
+      border: 1.1px solid rgb(var(--menu-color));
+      position: absolute; left: 0.5px; z-index: 4;
+      box-shadow: 0 0 7px 2px rgba(var(--menu-color), 0.15);
+      transition: all 0.14s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .scrollbar-before {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 5px;
+      background: linear-gradient(180deg, rgba(255, 20, 20, 0.11) 0%, rgba(255, 20, 20, 0.02) 100%);
+      border-radius: 99px;
+      z-index: 2;
+      pointer-events: none;
+      transition: height 0.12s;
+    }
+    /* Spectator Overlay */
+    .spectator-overlay {
+      position: fixed;
+      background: rgba(13, 13, 18, 0.88);
+      border-radius: 10px;
+      border: 1.5px solid rgb(var(--menu-color), 1);
+      box-shadow: 0 0 10px 2px rgba(var(--menu-color), 0.17), 0 2px 14px 0 #000b;
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      align-items: stretch;
+      padding: 6px 12px 6px 12px;
+      min-width: 110px;
+      max-width: 180px;
+      pointer-events: none;
+      overflow: visible;
+      transition: box-shadow 0.2s;
+    }
+    .spectator-overlay-title {
+      color: #fff;
+      font-weight: 700;
+      font-size: 12.5px;
+      letter-spacing: 1px;
+      margin-bottom: 3px;
+      text-align: center;
+      filter: drop-shadow(0 0 2px rgb(var(--menu-color),0.09));
+      text-shadow: 0 0 4px rgb(var(--menu-color),0.16), 0 1px 0 #000;
+      padding-bottom: 0;
+      border-bottom: none;
+      background: none;
+    }
+    .spectator-overlay-divider {
+      width: 70%;
+      height: 1.1px;
+      margin: 0 auto 3px auto;
+      background: linear-gradient(90deg, transparent, rgb(var(--menu-color), 1), transparent);
+      border-radius: 2px;
+      box-shadow: 0 0 2px 0.6px rgba(var(--menu-color), 0.21);
+      opacity: 0.5;
+    }
+    .spectator-overlay-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      align-items: flex-start;
+      min-height: 7px;
+      max-height: 85px;
+      background: linear-gradient(135deg,rgba(var(--menu-color),0.08) 0%,rgba(var(--menu-color),0.02) 100%);
+      border-radius: 5px;
+      padding: 2px 0 2px 0;
+      width: 100%;
+    }
+    .spectator-overlay-user {
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.7px;
+      text-shadow: 0 1px 3px #000b, 0 0 2px rgb(var(--menu-color),0.09);
+      min-width: 0;
+      max-width: 125px;
+      text-align: left;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      pointer-events: none;
+      font-size: 12px;
+      padding: 0 5px;
+      margin: 0;
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+    }
+    /* Color Picker Modal */
+    .color-picker-modal {
+      position: fixed;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      background: #181818;
+      border-radius: 10px;
+      border: 1.2px solid rgb(var(--menu-color));
+      z-index: 99;
+      padding: 11px 16px;
+      display: none;
+      flex-direction: column;
+      gap: 7px; align-items: center;
+      min-width: 120px;
+      min-height: 80px;
+      box-shadow: 0 2px 10px 2px rgba(var(--menu-color), 0.13);
+    }
+    .color-picker-canvas {
+      border-radius: 6px;
+      border: 1px solid rgb(var(--menu-color));
+      margin-top: 3px;
+      margin-bottom: 6px;
+      cursor: crosshair;
+      width: 110px;
+      height: 54px;
+      box-shadow: 0 0 3px 0.5px rgba(var(--menu-color), 0.06);
+      background: #111;
+    }
+    .color-picker-preview {
+      margin: 0 auto 6px auto;
+      width: 20px; height: 20px; border-radius: 4px;
+      border: 1.1px solid rgb(var(--menu-color));
+      box-shadow: 0 0 4px 0.5px rgba(var(--menu-color), 0.07);
+      background: rgba(var(--menu-color), var(--menu-alpha, 1));
+    }
+    .color-picker-label {
+      color: #fff;
+      font-size: 10px;
+      margin-bottom: 2px;
+      display: block;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+    .color-picker-values {
+      color: #fff;
+      font-family: monospace;
+      font-size: 9.5px;
+      margin-top: 1.5px;
+      text-align: center;
+    }
+    .footer {
+      background: linear-gradient(135deg, #000000 0%, #0a0000 100%);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 18px;
+      font-size: 11.5px;
+      color: rgba(var(--menu-color), 0.82);
+      border-top: 1px solid rgba(var(--menu-color), 0.18);
+      font-weight: 600;
+      letter-spacing: 0.38px;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      height: var(--footer-height);
+      min-height: var(--footer-height);
+      line-height: 1.15;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    .footer > div { display: flex; align-items: center; gap: 8px; }
+    .version::before {
+      content: '●';
+      color: rgb(var(--menu-color));
+      animation: pulse 2s infinite;
+      font-size: 11px;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.1); }
+    }
+    .page {
+      background: linear-gradient(135deg, rgba(var(--menu-color), 0.13) 0%, rgba(var(--menu-color), 0.05) 100%);
+      padding: 3px 7px;
+      border-radius: 7px;
+      border: 1px solid rgba(var(--menu-color), 0.22);
+      font-family: 'Inter', monospace;
+      font-weight: 700;
+      font-size: 10.5px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+  </style>
+</head>
+<body>
+<div class="menu-wrapper" id="menuWrapper">
+  <div class="menu-container" id="menuContainer">
+    <div class="banner">
+      <img src="https://i.imgur.com/9cXUdBM.png" alt="Custom Banner" id="bannerImage">
+    </div>
+    <div class="current-category" id="currentCategory">
+      <span id="categoryName">Navigating...</span>
+    </div>
+    <div class="menu-items" id="menuList"></div>
+    <div class="footer">
+      <div class="version">Version Beta</div>
+      <div class="page" id="selectedIndex">1/10</div>
+    </div>
+  </div>
+  <div class="custom-scrollbar" id="customScrollbar">
+    <div class="scrollbar-before"></div>
+    <div class="scrollbar-thumb"></div>
+  </div>
+</div>
+<!-- Spectator Overlay -->
+<div class="spectator-overlay" id="spectatorOverlay">
+  <div class="spectator-overlay-title">Spectator List</div>
+  <div class="spectator-overlay-divider"></div>
+  <div class="spectator-overlay-list" id="spectatorListOverlay"></div>
+</div>
+<!-- Color Picker Modal -->
+<div class="color-picker-modal" id="colorPickerModal">
+  <span class="color-picker-label">Pick menu color</span>
+  <canvas class="color-picker-canvas" id="colorCanvas" width="110" height="54"></canvas>
+  <div class="color-picker-preview" id="colorPickerPreview"></div>
+  <div class="color-picker-values" id="colorPickerValues">rgba(255,20,20,1)</div>
+  <div style="color:#bbb;font-size:9px;text-align:center;width:100%;">Enter = confirm • Backspace = cancel</div>
+</div>
+<script>
+const carNames = [
+  "BMW X5", "Audi RS6", "Tesla Cybertruck", "Porsche 911", "Lamborghini Aventador",
+  "Ferrari Roma", "McLaren 765LT", "Toyota Supra", "Nissan GT-R", "Ford Mustang",
+  "Chevrolet Camaro", "Dodge Challenger", "Mercedes G63", "Honda NSX", "Mazda RX-7",
+  "Subaru Impreza", "Bugatti Chiron", "Aston Martin DB11", "Lexus LC500", "Volkswagen Golf R"
+];
+let selectedCarIndex = 0;
+
+function randomPlayers() {
+  const samples = [
+    "Migi", "NoobMaster", "ShadowWolf", "xXx_Slayer_xXx", "Zoomer", "Marek", "Skillz", "CyberBeast", "MegaPro", "Dominator",
+    "FireFox", "Archer", "KillerJoe", "PlayerZero", "Xenon", "Phantom", "Viper", "Ghost", "Sniper", "Lightning"
+  ];
+  let shuffled = [...samples].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 10).map(n => ({ name: n, type: 'checkbox', checked: false }));
+}
+
+const menuStructure = {
+  main: [
+    { name: 'Self', type: 'submenu' },
+    { name: 'Online', type: 'submenu' },
+    { name: 'Destroyer', type: 'submenu' },
+    { name: 'Vehicle', type: 'submenu' },
+    { name: 'Weapon', type: 'submenu' },
+    { name: 'Visuals', type: 'submenu' },
+    { name: 'Misc', type: 'submenu' },
+    { name: 'Settings', type: 'submenu' },
+    { name: 'Advanced', type: 'submenu' },
+    { name: 'Extras', type: 'submenu' }
+  ],
+  self: [
+    { name: 'GodMode', type: 'checkbox', checked: false },
+    { name: 'NoClip', type: 'checkbox', checked: false },
+    { name: 'Infinite Health', type: 'checkbox', checked: false },
+    { name: 'Super Speed', type: 'checkbox', checked: false },
+    { name: 'Teleport', type: 'action' }
+  ],
+  online: [
+    { name: 'Player List', type: 'submenu' },
+    { name: 'Kick All', type: 'checkbox', checked: false },
+    { name: 'Block Joins', type: 'checkbox', checked: false },
+    { name: 'Spectate Mode', type: 'checkbox', checked: false }
+  ],
+  playerlist: randomPlayers(),
+  destroyer: [
+    { name: 'Explode All', type: 'action' },
+    { name: 'Delete Objects', type: 'checkbox', checked: false },
+    { name: 'Crash Server', type: 'action' },
+    { name: 'Clear Area', type: 'action' }
+  ],
+  vehicle: [
+    { name: 'Spawn Car', type: 'submenu' },
+    { name: 'Infinite Fuel', type: 'checkbox', checked: false },
+    { name: 'Super Boost', type: 'checkbox', checked: false },
+    { name: 'No Damage', type: 'checkbox', checked: false }
+  ],
+  spawncar: [
+    { name: 'Addon', type: 'carselector' }
+  ],
+  weapon: [
+    { name: 'All Weapons', type: 'action' },
+    { name: 'Infinite Ammo', type: 'checkbox', checked: false },
+    { name: 'One Shot Kill', type: 'checkbox', checked: false },
+    { name: 'Auto Aim', type: 'checkbox', checked: false }
+  ],
+  visuals: [
+    { name: 'ESP Players', type: 'checkbox', checked: false },
+    { name: 'ESP Objects', type: 'checkbox', checked: false },
+    { name: 'Wallhack', type: 'checkbox', checked: false },
+    { name: 'Night Vision', type: 'checkbox', checked: false },
+    { name: 'Spectator', type: 'submenu' }
+  ],
+  spectator: [
+    { name: 'Spectator List', type: 'checkbox', checked: false },
+    { name: 'Position X', type: 'slider', value: 70, min: 0, max: 100 },
+    { name: 'Position Y', type: 'slider', value: 15, min: 0, max: 100 }
+  ],
+  misc: [
+    { name: 'Skip Intro', type: 'checkbox', checked: false },
+    { name: 'Fast Loading', type: 'checkbox', checked: false },
+    { name: 'Debug Mode', type: 'checkbox', checked: false },
+    { name: 'Console', type: 'action' }
+  ],
+  settings: [
+    { name: 'Menu Position X', type: 'slider', value: 50, min: 0, max: 100 },
+    { name: 'Menu Position Y', type: 'slider', value: 50, min: 0, max: 100 },
+    { name: 'Menu Color', type: 'color' },
+    { name: 'Auto Save', type: 'checkbox', checked: false },
+    { name: 'Sound Effects', type: 'checkbox', checked: false }
+  ],
+  advanced: [
+    { name: 'Memory Editor', type: 'action' },
+    { name: 'Script Injector', type: 'action' },
+    { name: 'Process Monitor', type: 'checkbox', checked: false },
+    { name: 'Debug Console', type: 'action' }
+  ],
+  extras: [
+    { name: 'About', type: 'action' },
+    { name: 'Updates', type: 'action' },
+    { name: 'Discord', type: 'action' },
+    { name: 'Support', type: 'action' }
+  ]
+};
+let currentMenu = 'main';
+let currentIndex = 0;
+let viewportStart = 0;
+const VISIBLE_ITEMS = 9;
+const ITEM_HEIGHT = 40;
+const categoryBarHeight = 24;
+const bannerHeight = 54;
+const footerHeight = 23;
+const menuWidth = 340;
+const scrollbarMinHeight = 60;
+const spectatorOverlay = document.getElementById('spectatorOverlay');
+const spectatorListOverlay = document.getElementById('spectatorListOverlay');
+const SPECTATORS = [
+  'Spectator_One', 'Spectator_Two', 'Spectator_Three', 'Spectator_Four', 'Spectator_Five'
+];
+const categoryDisplay = document.getElementById('categoryName');
+const indexDisplay = document.getElementById('selectedIndex');
+const scrollbarThumb = document.querySelector('.scrollbar-thumb');
+const scrollbarBefore = document.querySelector('.scrollbar-before');
+const colorPickerModal = document.getElementById('colorPickerModal');
+const colorCanvas = document.getElementById('colorCanvas');
+const colorPickerPreview = document.getElementById('colorPickerPreview');
+const colorPickerValues = document.getElementById('colorPickerValues');
+const menuWrapper = document.getElementById('menuWrapper');
+const menuContainer = document.getElementById('menuContainer');
+const customScrollbar = document.getElementById('customScrollbar');
+let menuOffsetX = 0, menuOffsetY = 0, isDragging = false, dragStartX = 0, dragStartY = 0;
+function getDynamicCarFont(car) {
+  if (car.length >= 20) return "11px";
+  if (car.length >= 15) return "12px";
+  if (car.length >= 11) return "13px";
+  return "14px";
+}
+function getDynamicSpectatorFont(name) {
+  if (name.length >= 19) return "9px";
+  if (name.length >= 15) return "10px";
+  if (name.length >= 11) return "10.5px";
+  return "12px";
+}
+function createMenuItem(item, index) {
+  const div = document.createElement('div');
+  div.className = 'menu-item';
+  let rightElement = '';
+  switch (item.type) {
+    case 'submenu':
+      rightElement = '<span class="arrow">→</span>';
+      break;
+    case 'checkbox':
+      rightElement = `<div class="checkbox-bar${item.checked ? " checked" : ""}"><div class="checkbox-knob"></div></div>`;
+      break;
+    case 'slider':
+      const percent = (item.value - item.min) / (item.max - item.min);
+      const knobLeft = percent * (52 - 11);
+      rightElement = `<div class="slider-bar"><div class="slider-fill" style="width:${percent*100}%"></div><div class="slider-knob" style="left:${knobLeft}px"></div></div>`;
+      break;
+    case 'color':
+      rightElement = `<div class="color-preview"></div>`;
+      break;
+    case 'action':
+      rightElement = '';
+      break;
+    case 'carselector': {
+      const car = carNames[selectedCarIndex];
+      rightElement = `
+        <span class="car-name-dynamic" style="font-size:${getDynamicCarFont(car)};">
+          - ${car} -
+        </span>
+      `;
+      break;
+    }
+  }
+  div.innerHTML = `<span>${item.name}</span>${rightElement}`;
+  return div;
+}
+function renderMenu() {
+  const menuList = document.getElementById('menuList');
+  menuList.innerHTML = '';
+  const items = menuStructure[currentMenu];
+  // Dynamically calculate how many items to show
+  const visibleCount = Math.min(items.length, VISIBLE_ITEMS);
+  // Dynamically set menu height
+  const dynamicHeight = bannerHeight + categoryBarHeight + (visibleCount * ITEM_HEIGHT) + footerHeight;
+  menuContainer.style.height = dynamicHeight + "px";
+  // Dynamically set scrollbar height
+  customScrollbar.style.height = (visibleCount * ITEM_HEIGHT) + "px";
+  items.forEach((item, idx) => {
+    const menuItem = createMenuItem(item, idx);
+    menuItem.classList.toggle('selected', idx === currentIndex);
+    menuItem.style.position = 'absolute';
+    menuItem.style.top = `${(idx-viewportStart)*ITEM_HEIGHT}px`;
+    menuItem.style.left = '14px';
+    menuItem.style.width = 'calc(100% - 28px)';
+    menuItem.style.display = idx-viewportStart >= 0 && idx-viewportStart < visibleCount ? 'flex' : 'none';
+    menuList.appendChild(menuItem);
+  });
+  indexDisplay.textContent = `${currentIndex + 1}/${items.length}`;
+  categoryDisplay.textContent = currentMenu === 'main' ? 'Main Menu' : capitalizeFirst(currentMenu);
+  updateScrollbar(visibleCount);
+  updateSpectatorOverlay();
+}
+function updateScrollbar(visibleCount) {
+  const items = menuStructure[currentMenu];
+  if (items.length <= visibleCount) {
+    scrollbarThumb.style.height = '100%';
+    scrollbarThumb.style.top = '0px';
+    scrollbarBefore.style.display = 'none';
+    return;
+  }
+  const thumbHeight = Math.max(18, (visibleCount / items.length) * (visibleCount * ITEM_HEIGHT));
+  const scrollPercentage = viewportStart / (items.length - visibleCount);
+  const maxThumbTop = (visibleCount * ITEM_HEIGHT) - thumbHeight;
+  const thumbTop = scrollPercentage * maxThumbTop;
+  scrollbarThumb.style.height = `${thumbHeight}px`;
+  scrollbarThumb.style.top = `${Math.max(0, Math.min(maxThumbTop, thumbTop))}px`;
+  scrollbarBefore.style.display = '';
+  scrollbarBefore.style.height = `${thumbTop + thumbHeight/2}px`;
+}
+function capitalizeFirst(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+function scrollToKeepVisible() {
+  const items = menuStructure[currentMenu];
+  const visibleCount = Math.min(items.length, VISIBLE_ITEMS);
+  if (currentIndex < viewportStart) {
+    viewportStart = currentIndex;
+  } else if (currentIndex >= viewportStart + visibleCount) {
+    viewportStart = currentIndex - visibleCount + 1;
+  }
+  viewportStart = Math.max(0, Math.min(viewportStart, items.length - visibleCount));
+  if (items.length <= visibleCount) viewportStart = 0;
+}
+function navigateUp() {
+  const items = menuStructure[currentMenu];
+  if (currentIndex > 0) {
+    currentIndex--;
+    scrollToKeepVisible();
+    renderMenu();
+  }
+}
+function navigateDown() {
+  const items = menuStructure[currentMenu];
+  if (currentIndex < items.length - 1) {
+    currentIndex++;
+    scrollToKeepVisible();
+    renderMenu();
+  }
+}
+function navigateLeft() {
+  const items = menuStructure[currentMenu];
+  const item = items[currentIndex];
+  if (item && item.type === 'slider') {
+    item.value = Math.max(item.min, item.value - 5);
+    if (currentMenu === 'spectator') updateSpectatorOverlayPosition();
+    if (currentMenu === 'settings') updateMenuPosition();
+    renderMenu();
+  } else if (item && item.type === 'carselector') {
+    selectedCarIndex = (selectedCarIndex - 1 + carNames.length) % carNames.length;
+    renderMenu();
+  }
+}
+function navigateRight() {
+  const items = menuStructure[currentMenu];
+  const item = items[currentIndex];
+  if (item && item.type === 'slider') {
+    item.value = Math.min(item.max, item.value + 5);
+    if (currentMenu === 'spectator') updateSpectatorOverlayPosition();
+    if (currentMenu === 'settings') updateMenuPosition();
+    renderMenu();
+  } else if (item && item.type === 'carselector') {
+    selectedCarIndex = (selectedCarIndex + 1) % carNames.length;
+    renderMenu();
+  }
+}
+function selectItem() {
+  const items = menuStructure[currentMenu];
+  const item = items[currentIndex];
+  if (!item) return;
+  switch(item.type) {
+    case 'submenu': {
+      const submenuKey = item.name.toLowerCase().replace(/ /g, '');
+      if (submenuKey === "playerlist") {
+        menuStructure.playerlist = randomPlayers();
+      }
+      if (menuStructure[submenuKey]) {
+        currentMenu = submenuKey;
+        currentIndex = 0;
+        viewportStart = 0;
+        renderMenu();
+      }
+      break;
+    }
+    case 'checkbox':
+      item.checked = !item.checked;
+      renderMenu();
+      break;
+    case 'carselector':
+      alert(`Spawned car: ${carNames[selectedCarIndex]}`);
+      break;
+    case 'color':
+      openColorPicker();
+      break;
+    case 'action':
+      alert(`Action: ${item.name}`);
+      break;
+  }
+}
+function goBack() {
+  if (colorPickerModal.style.display === 'flex') {
+    closeColorPicker();
+    return;
+  }
+  if (currentMenu !== 'main') {
+    currentMenu = 'main';
+    currentIndex = 0;
+    viewportStart = 0;
+    renderMenu();
+  }
+}
+document.addEventListener('keydown', (e) => {
+  if (colorPickerModal.style.display === 'flex') {
+    if (e.key === 'Backspace') closeColorPicker();
+    if (e.key === 'Enter') confirmColorPicker();
+    return;
+  }
+  switch(e.key) {
+    case 'ArrowDown':
+    case 's':
+    case 'S':
+      e.preventDefault(); navigateDown(); break;
+    case 'ArrowUp':
+    case 'w':
+    case 'W':
+      e.preventDefault(); navigateUp(); break;
+    case 'ArrowLeft':
+    case 'a':
+    case 'A':
+      e.preventDefault(); navigateLeft(); break;
+    case 'ArrowRight':
+    case 'd':
+    case 'D':
+      e.preventDefault(); navigateRight(); break;
+    case 'Enter':
+    case ' ':
+      e.preventDefault(); selectItem(); break;
+    case 'Backspace':
+      e.preventDefault(); goBack(); break;
+  }
+});
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('selectstart', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
+document.body.setAttribute('tabindex', '0');
+document.body.focus();
+function updateSpectatorOverlay() {
+  const spec = menuStructure.spectator;
+  if (spec[0].checked) {
+    spectatorListOverlay.innerHTML = '';
+    SPECTATORS.forEach((u, idx) => {
+      const div = document.createElement('div');
+      div.className = 'spectator-overlay-user';
+      div.style.fontSize = getDynamicSpectatorFont(u);
+      div.textContent = u;
+      spectatorListOverlay.appendChild(div);
+    });
+    updateSpectatorOverlayPosition();
+    spectatorOverlay.style.display = 'flex';
+  } else {
+    spectatorOverlay.style.display = 'none';
+  }
+}
+function updateSpectatorOverlayPosition() {
+  const spec = menuStructure.spectator;
+  const valX = spec[1].value;
+  const valY = spec[2].value;
+  spectatorOverlay.style.right = `${Math.round(60 + (100 - valX) * 2.2)}px`;
+  spectatorOverlay.style.top = `${Math.round(70 + valY * 3)}px`;
+}
+function updateMenuPosition() {
+  const set = menuStructure.settings;
+  const x = set.find(s => s.name === "Menu Position X").value;
+  const y = set.find(s => s.name === "Menu Position Y").value;
+  menuOffsetX = ((x - 50) * window.innerWidth * 0.012);
+  menuOffsetY = ((y - 50) * window.innerHeight * 0.012);
+  menuWrapper.style.left = `50%`;
+  menuWrapper.style.top = `50%`;
+  menuWrapper.style.transform = `translate(${menuOffsetX}px, ${menuOffsetY}px)`;
+}
+let dragOriginX = 0, dragOriginY = 0, dragBaseX = 0, dragBaseY = 0;
+menuWrapper.addEventListener('mousedown', (e) => {
+  if (e.button !== 0) return;
+  isDragging = true;
+  dragOriginX = e.clientX;
+  dragOriginY = e.clientY;
+  dragBaseX = menuOffsetX;
+  dragBaseY = menuOffsetY;
+  document.body.style.userSelect = "none";
+});
+window.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+  menuOffsetX = dragBaseX + (e.clientX - dragOriginX);
+  menuOffsetY = dragBaseY + (e.clientY - dragOriginY);
+  menuWrapper.style.transform = `translate(${menuOffsetX}px, ${menuOffsetY}px)`;
+});
+window.addEventListener('mouseup', (e) => {
+  if (!isDragging) return;
+  isDragging = false;
+  document.body.style.userSelect = "";
+});
+function openColorPicker() {
+  colorPickerModal.style.display = 'flex';
+  drawColorPicker();
+  updateColorPickerPreview(menuColor);
+}
+function closeColorPicker() {
+  colorPickerModal.style.display = 'none';
+}
+function confirmColorPicker() {
+  menuColor = { ...currentPickRGBA };
+  document.documentElement.style.setProperty('--menu-color', `${menuColor.r}, ${menuColor.g}, ${menuColor.b}`);
+  document.documentElement.style.setProperty('--menu-alpha', menuColor.a);
+  document.documentElement.style.setProperty('--banner-hue', getHueFromRGB(menuColor.r, menuColor.g, menuColor.b) + 'deg');
+  colorPickerModal.style.display = 'none';
+  renderMenu();
+}
+function drawColorPicker() {
+  const ctx = colorCanvas.getContext('2d');
+  let gradient = ctx.createLinearGradient(0, 0, colorCanvas.width, 0);
+  gradient.addColorStop(0, '#ff0000');
+  gradient.addColorStop(1 / 6, '#ffff00');
+  gradient.addColorStop((1 / 6) * 2, '#00ff00');
+  gradient.addColorStop((1 / 6) * 3, '#00ffff');
+  gradient.addColorStop((1 / 6) * 4, '#0000ff');
+  gradient.addColorStop((1 / 6) * 5, '#ff00ff');
+  gradient.addColorStop(1, '#ff0000');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, colorCanvas.width, colorCanvas.height);
+  gradient = ctx.createLinearGradient(0, 0, 0, colorCanvas.height);
+  gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+  gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+  gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, colorCanvas.width, colorCanvas.height);
+  gradient = ctx.createLinearGradient(0, 0, 0, colorCanvas.height);
+  gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+  gradient.addColorStop(0.5, 'rgba(0, 0, 0, 0)');
+  gradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, colorCanvas.width, colorCanvas.height);
+}
+function updateColorPickerPreview(rgba) {
+  colorPickerPreview.style.background = `rgba(${rgba.r},${rgba.g},${rgba.b},${rgba.a})`;
+  colorPickerValues.textContent = `rgba(${rgba.r},${rgba.g},${rgba.b},${Math.round(rgba.a*100)/100})`;
+}
+colorCanvas.onclick = function(e) {
+  let rect = colorCanvas.getBoundingClientRect();
+  let x = ((e.clientX - rect.left) / colorCanvas.clientWidth) * colorCanvas.width;
+  let y = ((e.clientY - rect.top) / colorCanvas.clientHeight) * colorCanvas.height;
+  let imgData = colorCanvas.getContext('2d').getImageData(x, y, 1, 1);
+  let rgba = imgData.data;
+  let a = 1;
+  if (x > colorCanvas.width - 10) {
+    a = 1 - (y / colorCanvas.height);
+    currentPickRGBA = { ...currentPickRGBA, a: Math.max(0, Math.min(1, a)) };
+  } else {
+    currentPickRGBA = { r: rgba[0], g: rgba[1], b: rgba[2], a: currentPickRGBA.a };
+  }
+  updateColorPickerPreview(currentPickRGBA);
+};
+colorPickerModal.addEventListener('keydown', function(e) {
+  if (e.key === 'Backspace') closeColorPicker();
+  if (e.key === 'Enter') confirmColorPicker();
+});
+colorPickerModal.tabIndex = 0;
+let menuColor = { r: 255, g: 20, b: 20, a: 1 };
+let currentPickRGBA = { r: 255, g: 20, b: 20, a: 1 };
+function getHueFromRGB(r,g,b) {
+  r /= 255; g /= 255; b /= 255;
+  let max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h, s, v = max;
+  let d = max - min;
+  s = max === 0 ? 0 : d / max;
+  if(max === min){
+      h = 0;
+  } else {
+      switch(max){
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+  }
+  return Math.round(h * 360) || 0;
+}
+document.documentElement.style.setProperty('--banner-hue', getHueFromRGB(255,20,20) + 'deg');
+renderMenu();
+updateMenuPosition();
+</script>
+</body>
+</html>
