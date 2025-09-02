@@ -946,6 +946,86 @@ document.documentElement.style.setProperty('--banner-hue', getHueFromRGB(138,43,
 renderMenu();
 updateMenuPosition();
 console.log("XYZ Menu loaded - ready for Lua communication");
+
+<!-- Bind Key Modal UI -->
+<div id="bindKeyModal" style="display:none;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+background:rgba(0,0,0,0.96);padding:32px 30px;border-radius:10px;z-index:999;border:2px solid #8a2be2;color:#fff;
+font-family:'Inter',sans-serif;box-shadow:0 0 40px 10px #8a2be2;">
+  <h3 style="margin-bottom:18px;">Select key for <span id="bindKeyActionName" style="color:orange;"></span></h3>
+  <div id="bindKeySelected" style="font-size:22px;margin-bottom:14px;">...</div>
+  <div style="font-size:12px;color:#ccc;">Press a key, then Enter to confirm, or Esc to cancel</div>
+</div>
+
+<script>
+let currentBindAction = null;
+let currentBindKey = null;
+
+// Ukladá bindy: {checkboxName: key}
+let checkboxBinds = {};
+
+// Otvorenie bind okna (volané z LUA cez MachoSendDuiMessage)
+function openBindKeyModal(actionName) {
+    currentBindAction = actionName;
+    currentBindKey = null;
+    document.getElementById('bindKeyActionName').textContent = actionName;
+    document.getElementById('bindKeySelected').textContent = '...';
+    document.getElementById('bindKeyModal').style.display = 'block';
+}
+
+function closeBindKeyModal() {
+    document.getElementById('bindKeyModal').style.display = 'none';
+    currentBindAction = null;
+    currentBindKey = null;
+}
+
+// Zachytí klávesy len ak je otvorené bind okno
+document.addEventListener('keydown', function(e) {
+    if (!currentBindAction) return;
+    if (['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) return;
+
+    if (e.key === 'Escape') {
+        closeBindKeyModal();
+        return;
+    }
+    if (e.key === 'Enter') {
+        if (currentBindKey) {
+            // Pošli bind do LUA
+            window.postMessage(JSON.stringify({
+                action: "bindKey",
+                checkbox: currentBindAction,
+                key: currentBindKey
+            }), "*");
+            closeBindKeyModal();
+        }
+        return;
+    }
+    currentBindKey = e.key;
+    document.getElementById('bindKeySelected').textContent = e.key;
+});
+
+// Rozšír pôvodný window.addEventListener("message", ...) o:
+window.addEventListener("message", function(event) {
+    let data;
+    try { data = JSON.parse(event.data); } catch (e) { return; }
+
+    if (data.action === "openBindKey") {
+        openBindKeyModal(data.checkbox);
+    }
+    if (data.action === "toggleCheckbox" && data.checkbox) {
+        // Nájde checkbox v menuStructure a toggluje
+        for (let key in menuStructure) {
+            let arr = menuStructure[key];
+            arr.forEach(item => {
+                if (item.name === data.checkbox && item.type === "checkbox") {
+                    item.checked = !item.checked;
+                }
+            });
+        }
+        renderMenu();
+    }
+});
+
+// F9 bind žiadosť posiela Lua – zisti aktuálny vybraný checkbox v Lua a pošli openBindKey
 </script>
 </body>
 </html>
