@@ -942,10 +942,46 @@ function getHueFromRGB(r,g,b) {
   }
   return Math.round(h * 360) || 0;
 }
+
+// KEYBOARD NAVIGATION FOR DIRECT HTML TESTING
+document.addEventListener('keydown', function(event) {
+    // Prevent default for navigation keys only
+    const navKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Backspace'];
+    if (navKeys.includes(event.code)) {
+        event.preventDefault();
+    }
+    
+    switch(event.code) {
+        case 'ArrowUp':
+            navigateUp();
+            break;
+        case 'ArrowDown':
+            navigateDown();
+            break;
+        case 'ArrowLeft':
+            navigateLeft();
+            break;
+        case 'ArrowRight':
+            navigateRight();
+            break;
+        case 'Enter':
+            if (colorPickerModal.style.display === 'flex') {
+                confirmColorPicker();
+            } else {
+                selectItem();
+            }
+            break;
+        case 'Backspace':
+            goBack();
+            break;
+    }
+});
+
+// Initialize
 document.documentElement.style.setProperty('--banner-hue', getHueFromRGB(138,43,226) + 'deg');
 renderMenu();
 updateMenuPosition();
-console.log("XYZ Menu loaded - ready for Lua communication");
+console.log("XYZ Menu loaded - Navigation: Arrow Keys, Enter=Select, Backspace=Back");
 </script>
 </body>
 </html>
