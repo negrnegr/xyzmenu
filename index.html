@@ -31,7 +31,6 @@
       overflow: hidden;
       margin: 0;
       padding: 0;
-      /* Disable all mouse interactions */
       pointer-events: none;
       user-select: none;
     }
@@ -471,7 +470,7 @@
 <div class="menu-wrapper" id="menuWrapper">
   <div class="menu-container" id="menuContainer">
     <div class="banner">
-      <img src="https://raw.githubusercontent.com/arresmr/xyzmenu/refs/heads/main/banner/bannernew.gif" alt="XYZ Menu Banner" id="bannerImage">
+      <img src="https://raw.githubusercontent.com/arresmr/xyzmenu/refs/heads/main/banner/gifbanner.gif" alt="XYZ Menu Banner" id="bannerImage">
     </div>
     <div class="current-category" id="currentCategory">
       <span id="categoryName">Main Menu</span>
@@ -712,29 +711,15 @@ window.addEventListener("message", function(event) {
         return;
     }
     
-    // Report current state back to Lua
-    if (data.action === "getState") {
-        window.parent.postMessage({
-            type: 'menuState',
-            state: currentState,
-            positionMode: positionPickerMode
-        }, '*');
-        return;
-    }
-    
-    // Handle navigation based on current state
     if (data.action === "navigate") {
         if (currentState === 'menu') {
-            // Normal menu navigation
             if (data.direction === "up") navigateUp();
             if (data.direction === "down") navigateDown();
             if (data.direction === "left") navigateLeft();
             if (data.direction === "right") navigateRight();
         } else if (currentState === 'colorpicker') {
-            // Color picker cursor movement
             moveColorCursor(data.direction);
         } else if (currentState === 'positionpicker') {
-            // Position picker movement
             movePosition(data.direction);
         }
     }
@@ -760,12 +745,9 @@ window.addEventListener("message", function(event) {
     }
     
     if (data.action === "close") {
-        // Close menu entirely
         currentState = 'menu';
         closeColorPicker();
         closePositionPicker();
-        // Send back to Lua that we're closing
-        window.parent.postMessage({ type: 'closeMenu' }, '*');
     }
     
     if (data.action === "updateColor") {
@@ -953,16 +935,32 @@ function selectItem() {
   }
 }
 
+// SIMPLE: If at main menu, signal Lua to close. Otherwise navigate back.
 function goBack() {
   if (currentMenu !== 'main') {
+    // Go back to previous menu
     menuPositions[currentMenu] = currentIndex;
-    currentMenu = 'main';
-    currentIndex = menuPositions['main'] || 0;
+    
+    // Find parent menu
+    let parentMenu = 'main';
+    if (currentMenu === 'spawnvehicle' || currentMenu === 'sportscars' || currentMenu === 'supercars' || 
+        currentMenu === 'motorcycles' || currentMenu === 'trucks' || currentMenu === 'aircraft') {
+      parentMenu = currentMenu === 'spawnvehicle' ? 'vehicle' : 'spawnvehicle';
+    } else if (currentMenu === 'visualtuning') {
+      parentMenu = 'vehicletune';
+    } else if (currentMenu === 'playerlist') {
+      parentMenu = 'players';
+    } else {
+      parentMenu = 'main';
+    }
+    
+    currentMenu = parentMenu;
+    currentIndex = menuPositions[parentMenu] || 0;
     viewportStart = 0;
     renderMenu();
   } else {
-    // FIXED: If already at main menu, close the menu
-    window.parent.postMessage({ type: 'closeMenu' }, '*');
+    // At main menu - tell Lua to close menu
+    window.shouldCloseLua = true;
   }
 }
 
@@ -974,11 +972,15 @@ function openColorPicker() {
   colorCursorY = 30;
   updateColorPickerCursor();
   updateColorFromCursor();
+  
+  window.luaMenuState = 'colorpicker';
 }
 
 function closeColorPicker() {
   currentState = 'menu';
   colorPickerModal.style.display = 'none';
+  
+  window.luaMenuState = 'menu';
 }
 
 function confirmColorPicker() {
@@ -1048,8 +1050,7 @@ function updateColorFromCursor() {
 }
 
 function moveColorCursor(direction) {
-  // FIXED: Smaller step for smoother movement when holding keys
-  const step = 1;
+  const step = 0.5;
   switch(direction) {
     case 'up':
       colorCursorY = Math.max(0, colorCursorY - step);
@@ -1082,6 +1083,8 @@ function openPositionPicker(mode) {
     tempSpectatorPosX = currentSpectatorPosX;
     tempSpectatorPosY = currentSpectatorPosY;
   }
+  
+  window.luaMenuState = 'positionpicker';
 }
 
 function closePositionPicker() {
@@ -1094,6 +1097,8 @@ function closePositionPicker() {
   
   positionPickerModal.style.display = 'none';
   positionPickerMode = null;
+  
+  window.luaMenuState = 'menu';
 }
 
 function confirmPositionPicker() {
@@ -1111,7 +1116,6 @@ function confirmPositionPicker() {
 }
 
 function movePosition(direction) {
-  // FIXED: Much smaller step for smoother movement when holding keys
   const step = 0.3;
   
   if (positionPickerMode === 'menu') {
@@ -1202,7 +1206,7 @@ function drawColorPicker() {
   gradient.addColorStop(1 / 6, '#ffff00');
   gradient.addColorStop((1 / 6) * 2, '#00ff00');
   gradient.addColorStop((1 / 6) * 3, '#00ffff');
-  gradient.addColorStop((1 / 6) * 4, '#0000ff');
+  gradient.addColorStop((1 / 6) * 4, '0000ff');
   gradient.addColorStop((1 / 6) * 5, '#ff00ff');
   gradient.addColorStop(1, '#ff0000');
   ctx.fillStyle = gradient;
@@ -1247,7 +1251,7 @@ function getHueFromRGB(r,g,b) {
   return Math.round(h * 360) || 0;
 }
 
-// COMPLETELY DISABLE ALL MOUSE AND KEYBOARD INTERACTIONS
+// Disable all mouse and keyboard interactions
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('selectstart', e => e.preventDefault());
 document.addEventListener('dragstart', e => e.preventDefault());
@@ -1264,7 +1268,7 @@ document.addEventListener('keypress', e => e.preventDefault());
 document.documentElement.style.setProperty('--banner-hue', getHueFromRGB(138,43,226) + 'deg');
 renderMenu();
 updateMenuPosition();
-console.log("XYZ Menu loaded - All input disabled, waiting for Lua messages");
+console.log("XYZ Menu loaded - Waiting for Lua input");
 </script>
 </body>
 </html>
