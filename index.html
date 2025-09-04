@@ -1111,8 +1111,8 @@ function confirmPositionPicker() {
 }
 
 function movePosition(direction) {
-  // FIXED: Smaller step for smoother movement when holding keys
-  const step = 0.5;
+  // FIXED: Much smaller step for smoother movement when holding keys
+  const step = 0.3;
   
   if (positionPickerMode === 'menu') {
     switch(direction) {
