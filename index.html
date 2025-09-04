@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=400, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=400, initial-scale=1.0">
   <title>XYZ MENU</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
@@ -157,7 +157,6 @@
       font-size: 16px;
       margin-left: 6px;
     }
-    /* New toggle switch design */
     .checkbox-bar {
       width: 44px; 
       height: 24px;
@@ -190,7 +189,6 @@
       left: 23px;
       background: #fff;
     }
-    /* New slider design */
     .slider-bar {
       width: 80px; 
       height: 6px;
@@ -316,39 +314,57 @@
       left: 50%; top: 50%;
       transform: translate(-50%, -50%);
       background: rgba(0, 0, 0, 0.9);
-      border-radius: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
       z-index: 999;
-      padding: 16px;
+      padding: 20px;
       display: none;
       flex-direction: column;
-      gap: 8px; align-items: center;
-      min-width: 140px;
-      min-height: 100px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      gap: 12px;
+      align-items: center;
+      min-width: 160px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
     }
     .color-picker-canvas {
-      border-radius: 4px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      margin-top: 3px;
-      margin-bottom: 6px;
+      border-radius: 6px;
+      border: 2px solid rgba(255, 255, 255, 0.4);
       cursor: crosshair;
-      width: 110px;
-      height: 54px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      width: 120px;
+      height: 60px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
       background: #111;
+      position: relative;
+    }
+    .color-picker-cursor {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border: 3px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.8);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      display: block;
+      background: rgba(255,255,255,0.2);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 2px rgba(0,0,0,0.8), 0 0 15px rgba(255,255,255,0.6); }
+      50% { box-shadow: 0 0 0 2px rgba(0,0,0,0.8), 0 0 25px rgba(255,255,255,1); }
     }
     .color-picker-preview {
-      margin: 0 auto 6px auto;
-      width: 20px; height: 20px; border-radius: 4px;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      margin: 0 auto;
+      width: 30px; height: 30px;
+      border-radius: 6px;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
       background: rgba(var(--menu-color), var(--menu-alpha, 1));
     }
     .color-picker-label {
       color: #fff;
-      font-size: 11px;
-      margin-bottom: 2px;
+      font-size: 14px;
+      font-weight: 600;
       display: block;
       text-align: center;
       letter-spacing: 0.5px;
@@ -356,9 +372,44 @@
     .color-picker-values {
       color: rgba(255, 255, 255, 0.8);
       font-family: monospace;
-      font-size: 10px;
-      margin-top: 2px;
+      font-size: 11px;
       text-align: center;
+    }
+    .color-picker-instructions {
+      color: #bbb;
+      font-size: 10px;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .position-picker-modal {
+      position: fixed;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      z-index: 998;
+      padding: 20px;
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+      min-width: 240px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    }
+    .position-picker-label {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+    .position-picker-instructions {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 11px;
+      text-align: center;
+      line-height: 1.6;
+      max-width: 200px;
     }
     .footer {
       background: rgba(0, 0, 0, 0.9) !important;
@@ -381,11 +432,11 @@
     .version::before {
       content: '●';
       color: rgb(var(--accent-color));
-      animation: pulse 2s infinite;
+      animation: pulse-dot 2s infinite;
       font-size: 8px;
       margin-right: 4px;
     }
-    @keyframes pulse {
+    @keyframes pulse-dot {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.6; transform: scale(1.1); }
     }
@@ -404,15 +455,15 @@
 <div class="menu-wrapper" id="menuWrapper">
   <div class="menu-container" id="menuContainer">
     <div class="banner">
-      <img src="" alt="Custom Banner" id="bannerImage">
+      <img src="https://raw.githubusercontent.com/arresmr/xyzmenu/refs/heads/main/banner/banner%20bwhitle.png" alt="XYZ Menu Banner" id="bannerImage">
     </div>
     <div class="current-category" id="currentCategory">
-      <span id="categoryName">Navigating...</span>
+      <span id="categoryName">Main Menu</span>
     </div>
     <div class="menu-items" id="menuList"></div>
     <div class="footer">
       <div class="version">Version Beta</div>
-      <div class="page" id="selectedIndex">1/10</div>
+      <div class="page" id="selectedIndex">1/7</div>
     </div>
   </div>
   <div class="custom-scrollbar" id="customScrollbar">
@@ -420,20 +471,34 @@
     <div class="scrollbar-thumb"></div>
   </div>
 </div>
-<!-- Spectator Overlay -->
+
 <div class="spectator-overlay" id="spectatorOverlay">
   <div class="spectator-overlay-title">Spectator List</div>
   <div class="spectator-overlay-divider"></div>
   <div class="spectator-overlay-list" id="spectatorListOverlay"></div>
 </div>
-<!-- Color Picker Modal -->
+
 <div class="color-picker-modal" id="colorPickerModal">
   <span class="color-picker-label">Pick menu color</span>
-  <canvas class="color-picker-canvas" id="colorCanvas" width="110" height="54"></canvas>
+  <div style="position: relative;">
+    <canvas class="color-picker-canvas" id="colorCanvas" width="120" height="60"></canvas>
+    <div class="color-picker-cursor" id="colorPickerCursor"></div>
+  </div>
   <div class="color-picker-preview" id="colorPickerPreview"></div>
   <div class="color-picker-values" id="colorPickerValues">rgba(138,43,226,1)</div>
-  <div style="color:#bbb;font-size:9px;text-align:center;width:100%;">Enter = confirm • Backspace = cancel</div>
+  <div class="color-picker-instructions">
+    Use arrows to move cursor<br>
+    Enter = confirm • Backspace = cancel
+  </div>
 </div>
+
+<div class="position-picker-modal" id="positionPickerModal">
+  <span class="position-picker-label" id="positionPickerLabel">Use arrow keys to move the menu</span>
+  <div class="position-picker-instructions">
+    Press Enter to confirm or Backspace to cancel.
+  </div>
+</div>
+
 <script>
 const carNames = [
   "BMW X5", "Audi RS6", "Tesla Cybertruck", "Porsche 911", "Lamborghini Aventador",
@@ -575,40 +640,52 @@ const menuStructure = {
     { name: 'Load Position', type: 'action' }
   ],
   settings: [
-    { name: 'Menu Position X', type: 'slider', value: 50, min: 0, max: 100 },
-    { name: 'Menu Position Y', type: 'slider', value: 50, min: 0, max: 100 },
+    { name: 'Menu Position', type: 'action' },
     { name: 'Menu Color', type: 'color' },
     { name: 'Spectator List', type: 'checkbox', checked: false },
-    { name: 'Spectator Position X', type: 'slider', value: 70, min: 0, max: 100 },
-    { name: 'Spectator Position Y', type: 'slider', value: 15, min: 0, max: 100 }
+    { name: 'Spectator Position', type: 'action' }
   ]
 };
+
 let currentMenu = 'main';
 let currentIndex = 0;
 let viewportStart = 0;
-let menuPositions = {}; // Store last positions for each menu
+let menuPositions = {};
 const VISIBLE_ITEMS = 9;
 const ITEM_HEIGHT = 40;
 const categoryBarHeight = 24;
 const bannerHeight = 54;
 const footerHeight = 23;
 const menuWidth = 340;
+
 const spectatorOverlay = document.getElementById('spectatorOverlay');
 const spectatorListOverlay = document.getElementById('spectatorListOverlay');
-const SPECTATORS = [
-  'Spectator_One', 'Spectator_Two', 'Spectator_Three', 'Spectator_Four', 'Spectator_Five'
-];
 const categoryDisplay = document.getElementById('categoryName');
 const indexDisplay = document.getElementById('selectedIndex');
 const colorPickerModal = document.getElementById('colorPickerModal');
 const colorCanvas = document.getElementById('colorCanvas');
 const colorPickerPreview = document.getElementById('colorPickerPreview');
 const colorPickerValues = document.getElementById('colorPickerValues');
+const colorPickerCursor = document.getElementById('colorPickerCursor');
+const positionPickerModal = document.getElementById('positionPickerModal');
+const positionPickerLabel = document.getElementById('positionPickerLabel');
 const menuWrapper = document.getElementById('menuWrapper');
 const menuContainer = document.getElementById('menuContainer');
-let menuOffsetX = 0, menuOffsetY = 0;
 
-// MESSAGE LISTENER FOR LUA COMMUNICATION
+let menuOffsetX = 0, menuOffsetY = 0;
+let colorCursorX = 60, colorCursorY = 30;
+let tempMenuColor = { r: 138, g: 43, b: 226, a: 1 };
+let positionPickerMode = null;
+let currentMenuPosX = 50, currentMenuPosY = 50;
+let currentSpectatorPosX = 70, currentSpectatorPosY = 15;
+let tempMenuPosX = 50, tempMenuPosY = 50;
+let tempSpectatorPosX = 70, tempSpectatorPosY = 15;
+let menuColor = { r: 138, g: 43, b: 226, a: 1 };
+
+const SPECTATORS = [
+  'Spectator_One', 'Spectator_Two', 'Spectator_Three', 'Spectator_Four', 'Spectator_Five'
+];
+
 window.addEventListener("message", function(event) {
     let data;
     try {
@@ -643,16 +720,19 @@ function getDynamicCarFont(car) {
   if (car.length >= 11) return "13px";
   return "14px";
 }
+
 function getDynamicSpectatorFont(name) {
   if (name.length >= 19) return "9px";
   if (name.length >= 15) return "10px";
   if (name.length >= 11) return "10.5px";
   return "12px";
 }
+
 function createMenuItem(item, index) {
   const div = document.createElement('div');
   div.className = 'menu-item';
   let rightElement = '';
+  
   switch (item.type) {
     case 'submenu':
       rightElement = '<span class="arrow">»</span>';
@@ -681,17 +761,20 @@ function createMenuItem(item, index) {
       break;
     }
   }
+  
   div.innerHTML = `<span>${item.name}</span>${rightElement}`;
   return div;
 }
+
 function renderMenu() {
   const menuList = document.getElementById('menuList');
   menuList.innerHTML = '';
   const items = menuStructure[currentMenu];
   const visibleCount = Math.min(items.length, VISIBLE_ITEMS);
-  const menuItemsHeight = visibleCount * ITEM_HEIGHT + 10; // extra padding
+  const menuItemsHeight = visibleCount * ITEM_HEIGHT + 10;
   const dynamicHeight = bannerHeight + categoryBarHeight + menuItemsHeight + footerHeight;
   menuContainer.style.height = dynamicHeight + "px";
+  
   items.forEach((item, idx) => {
     const menuItem = createMenuItem(item, idx);
     menuItem.classList.toggle('selected', idx === currentIndex);
@@ -702,13 +785,16 @@ function renderMenu() {
     menuItem.style.display = idx-viewportStart >= 0 && idx-viewportStart < visibleCount ? 'flex' : 'none';
     menuList.appendChild(menuItem);
   });
+  
   indexDisplay.textContent = `${currentIndex + 1}/${items.length}`;
   categoryDisplay.textContent = currentMenu === 'main' ? 'Main Menu' : capitalizeFirst(currentMenu);
   updateSpectatorOverlay();
 }
+
 function capitalizeFirst(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
 function scrollToKeepVisible() {
   const items = menuStructure[currentMenu];
   const visibleCount = Math.min(items.length, VISIBLE_ITEMS);
@@ -720,52 +806,50 @@ function scrollToKeepVisible() {
   viewportStart = Math.max(0, Math.min(viewportStart, items.length - visibleCount));
   if (items.length <= visibleCount) viewportStart = 0;
 }
+
 function navigateUp() {
   const items = menuStructure[currentMenu];
   currentIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
   scrollToKeepVisible();
   renderMenu();
 }
+
 function navigateDown() {
   const items = menuStructure[currentMenu];
   currentIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
   scrollToKeepVisible();
   renderMenu();
 }
+
 function navigateLeft() {
   const items = menuStructure[currentMenu];
   const item = items[currentIndex];
   if (item && item.type === 'slider') {
-    item.value = Math.max(item.min, item.value - 5);
-    if (currentMenu === 'settings') {
-      updateMenuPosition();
-      if (item.name.includes('Spectator Position')) updateSpectatorOverlayPosition();
-    }
+    item.value = Math.max(item.min, item.value - 1);
     renderMenu();
   } else if (item && item.type === 'carselector') {
     selectedCarIndex = (selectedCarIndex - 1 + carNames.length) % carNames.length;
     renderMenu();
   }
 }
+
 function navigateRight() {
   const items = menuStructure[currentMenu];
   const item = items[currentIndex];
   if (item && item.type === 'slider') {
-    item.value = Math.min(item.max, item.value + 5);
-    if (currentMenu === 'settings') {
-      updateMenuPosition();
-      if (item.name.includes('Spectator Position')) updateSpectatorOverlayPosition();
-    }
+    item.value = Math.min(item.max, item.value + 1);
     renderMenu();
   } else if (item && item.type === 'carselector') {
     selectedCarIndex = (selectedCarIndex + 1) % carNames.length;
     renderMenu();
   }
 }
+
 function selectItem() {
   const items = menuStructure[currentMenu];
   const item = items[currentIndex];
   if (!item) return;
+  
   switch(item.type) {
     case 'submenu': {
       const submenuKey = item.name.toLowerCase().replace(/ /g, '');
@@ -792,13 +876,24 @@ function selectItem() {
       openColorPicker();
       break;
     case 'action':
-      console.log(`Action: ${item.name}`);
+      if (item.name === 'Menu Position') {
+        openPositionPicker('menu');
+      } else if (item.name === 'Spectator Position') {
+        openPositionPicker('spectator');
+      } else {
+        console.log(`Action: ${item.name}`);
+      }
       break;
   }
 }
+
 function goBack() {
   if (colorPickerModal.style.display === 'flex') {
     closeColorPicker();
+    return;
+  }
+  if (positionPickerModal.style.display === 'flex') {
+    closePositionPicker();
     return;
   }
   if (currentMenu !== 'main') {
@@ -810,9 +905,204 @@ function goBack() {
   }
 }
 
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('selectstart', e => e.preventDefault());
-document.addEventListener('dragstart', e => e.preventDefault());
+function openColorPicker() {
+  colorPickerModal.style.display = 'flex';
+  drawColorPicker();
+  colorCursorX = 60;
+  colorCursorY = 30;
+  updateColorPickerCursor();
+  updateColorFromCursor();
+}
+
+function closeColorPicker() {
+  colorPickerModal.style.display = 'none';
+}
+
+function confirmColorPicker() {
+  menuColor = { ...tempMenuColor };
+  
+  // Direct style updates for immediate effect
+  applyMenuColors();
+  
+  closeColorPicker();
+  renderMenu();
+}
+
+function applyMenuColors() {
+  const r = menuColor.r;
+  const g = menuColor.g;  
+  const b = menuColor.b;
+  const a = menuColor.a;
+  
+  // Update banner with aggressive color transformation
+  const bannerImg = document.getElementById('bannerImage');
+  const hue = getHueFromRGB(r, g, b);
+  bannerImg.style.filter = `brightness(0.85) contrast(1.3) saturate(2.0) hue-rotate(${hue}deg)`;
+  
+  // Update menu container border
+  const menuContainer = document.querySelector('.menu-container');
+  menuContainer.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
+  
+  // Update category bar border
+  const categoryBar = document.querySelector('.current-category');
+  categoryBar.style.borderBottomColor = `rgba(${r}, ${g}, ${b}, 0.6)`;
+  
+  // Update footer border
+  const footer = document.querySelector('.footer');
+  footer.style.borderTopColor = `rgba(${r}, ${g}, ${b}, 0.6)`;
+  
+  // Update selected menu item if exists
+  const selectedItem = document.querySelector('.menu-item.selected');
+  if (selectedItem) {
+    selectedItem.style.background = `rgba(${r}, ${g}, ${b}, 0.2)`;
+    selectedItem.style.borderLeftColor = `rgb(${r}, ${g}, ${b})`;
+    const selectedText = selectedItem.querySelector('span:first-child');
+    if (selectedText) {
+      selectedText.style.color = `rgb(${r}, ${g}, ${b})`;
+    }
+  }
+  
+  // Update all checked checkboxes
+  document.querySelectorAll('.checkbox-bar.checked').forEach(checkbox => {
+    checkbox.style.background = `rgba(${r}, ${g}, ${b}, 0.8)`;
+  });
+  
+  // Update all slider knobs
+  document.querySelectorAll('.slider-knob').forEach(knob => {
+    knob.style.background = `rgb(${r}, ${g}, ${b})`;
+  });
+  
+  // Update color previews
+  document.querySelectorAll('.color-preview').forEach(preview => {
+    preview.style.background = `rgba(${r}, ${g}, ${b}, ${a})`;
+  });
+  
+  // Update CSS variables as fallback
+  document.documentElement.style.setProperty('--menu-color', `${r}, ${g}, ${b}`);
+  document.documentElement.style.setProperty('--menu-alpha', a);
+  document.documentElement.style.setProperty('--banner-hue', `${hue}deg`);
+  
+  console.log(`Applied menu color: rgb(${r}, ${g}, ${b}) with banner hue: ${hue}deg`);
+}
+
+function updateColorPickerCursor() {
+  colorPickerCursor.style.left = colorCursorX + 'px';
+  colorPickerCursor.style.top = colorCursorY + 'px';
+}
+
+function updateColorFromCursor() {
+  const ctx = colorCanvas.getContext('2d');
+  const imgData = ctx.getImageData(colorCursorX, colorCursorY, 1, 1);
+  const rgba = imgData.data;
+  tempMenuColor = { r: rgba[0], g: rgba[1], b: rgba[2], a: tempMenuColor.a };
+  updateColorPickerPreview(tempMenuColor);
+}
+
+function moveColorCursor(direction) {
+  const step = 3;
+  switch(direction) {
+    case 'up':
+      colorCursorY = Math.max(0, colorCursorY - step);
+      break;
+    case 'down':
+      colorCursorY = Math.min(59, colorCursorY + step);
+      break;
+    case 'left':
+      colorCursorX = Math.max(0, colorCursorX - step);
+      break;
+    case 'right':
+      colorCursorX = Math.min(119, colorCursorX + step);
+      break;
+  }
+  updateColorPickerCursor();
+  updateColorFromCursor();
+}
+
+function openPositionPicker(mode) {
+  positionPickerMode = mode;
+  positionPickerModal.style.display = 'flex';
+  
+  if (mode === 'menu') {
+    positionPickerLabel.textContent = 'Use arrow keys to move the menu';
+    tempMenuPosX = currentMenuPosX;
+    tempMenuPosY = currentMenuPosY;
+  } else if (mode === 'spectator') {
+    positionPickerLabel.textContent = 'Use arrow keys to move the spectator list';
+    tempSpectatorPosX = currentSpectatorPosX;
+    tempSpectatorPosY = currentSpectatorPosY;
+  }
+}
+
+function closePositionPicker() {
+  if (positionPickerMode === 'menu') {
+    updateMenuPosition();
+  } else if (positionPickerMode === 'spectator') {
+    updateSpectatorOverlayPosition();
+  }
+  
+  positionPickerModal.style.display = 'none';
+  positionPickerMode = null;
+}
+
+function confirmPositionPicker() {
+  if (positionPickerMode === 'menu') {
+    currentMenuPosX = tempMenuPosX;
+    currentMenuPosY = tempMenuPosY;
+    updateMenuPosition();
+  } else if (positionPickerMode === 'spectator') {
+    currentSpectatorPosX = tempSpectatorPosX;
+    currentSpectatorPosY = tempSpectatorPosY;
+    updateSpectatorOverlayPosition();
+  }
+  
+  closePositionPicker();
+}
+
+function movePosition(direction) {
+  const step = 1;
+  
+  if (positionPickerMode === 'menu') {
+    switch(direction) {
+      case 'up':
+        tempMenuPosY = Math.max(0, tempMenuPosY - step);
+        break;
+      case 'down':
+        tempMenuPosY = Math.min(100, tempMenuPosY + step);
+        break;
+      case 'left':
+        tempMenuPosX = Math.max(0, tempMenuPosX - step);
+        break;
+      case 'right':
+        tempMenuPosX = Math.min(100, tempMenuPosX + step);
+        break;
+    }
+    
+    const offsetX = ((tempMenuPosX - 50) * window.innerWidth * 0.012);
+    const offsetY = ((tempMenuPosY - 50) * window.innerHeight * 0.012);
+    menuWrapper.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+    
+  } else if (positionPickerMode === 'spectator') {
+    switch(direction) {
+      case 'up':
+        tempSpectatorPosY = Math.max(0, tempSpectatorPosY - step);
+        break;
+      case 'down':
+        tempSpectatorPosY = Math.min(100, tempSpectatorPosY + step);
+        break;
+      case 'left':
+        tempSpectatorPosX = Math.max(0, tempSpectatorPosX - step);
+        break;
+      case 'right':
+        tempSpectatorPosX = Math.min(100, tempSpectatorPosX + step);
+        break;
+    }
+    
+    const screenX = (tempSpectatorPosX / 100) * window.innerWidth;
+    const screenY = (tempSpectatorPosY / 100) * window.innerHeight;
+    spectatorOverlay.style.left = `${screenX}px`;
+    spectatorOverlay.style.top = `${screenY}px`;
+  }
+}
 
 function updateSpectatorOverlay() {
   const settings = menuStructure.settings;
@@ -833,46 +1123,23 @@ function updateSpectatorOverlay() {
     spectatorOverlay.style.display = 'none';
   }
 }
+
 function updateSpectatorOverlayPosition() {
-  const settings = menuStructure.settings;
-  const valX = settings.find(s => s.name === "Spectator Position X").value;
-  const valY = settings.find(s => s.name === "Spectator Position Y").value;
-  
-  const screenX = (valX / 100) * window.innerWidth;
-  const screenY = (valY / 100) * window.innerHeight;
+  const screenX = (currentSpectatorPosX / 100) * window.innerWidth;
+  const screenY = (currentSpectatorPosY / 100) * window.innerHeight;
   
   spectatorOverlay.style.left = `${screenX}px`;
   spectatorOverlay.style.top = `${screenY}px`;
   spectatorOverlay.style.right = 'auto';
   spectatorOverlay.style.transform = 'none';
 }
+
 function updateMenuPosition() {
-  const set = menuStructure.settings;
-  const x = set.find(s => s.name === "Menu Position X").value;
-  const y = set.find(s => s.name === "Menu Position Y").value;
-  menuOffsetX = ((x - 50) * window.innerWidth * 0.012);
-  menuOffsetY = ((y - 50) * window.innerHeight * 0.012);
+  menuOffsetX = ((currentMenuPosX - 50) * window.innerWidth * 0.012);
+  menuOffsetY = ((currentMenuPosY - 50) * window.innerHeight * 0.012);
   menuWrapper.style.left = `50%`;
   menuWrapper.style.top = `50%`;
   menuWrapper.style.transform = `translate(${menuOffsetX}px, ${menuOffsetY}px)`;
-}
-function openColorPicker() {
-  colorPickerModal.style.display = 'flex';
-  drawColorPicker();
-  updateColorPickerPreview(menuColor);
-}
-
-function closeColorPicker() {
-  colorPickerModal.style.display = 'none';
-}
-
-function confirmColorPicker() {
-  menuColor = { ...currentPickRGBA };
-  document.documentElement.style.setProperty('--menu-color', `${menuColor.r}, ${menuColor.g}, ${menuColor.b}`);
-  document.documentElement.style.setProperty('--menu-alpha', menuColor.a);
-  document.documentElement.style.setProperty('--banner-hue', getHueFromRGB(menuColor.r, menuColor.g, menuColor.b) + 'deg');
-  closeColorPicker();
-  renderMenu();
 }
 
 function drawColorPicker() {
@@ -887,12 +1154,14 @@ function drawColorPicker() {
   gradient.addColorStop(1, '#ff0000');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, colorCanvas.width, colorCanvas.height);
+  
   gradient = ctx.createLinearGradient(0, 0, 0, colorCanvas.height);
   gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
   gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
   gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, colorCanvas.width, colorCanvas.height);
+  
   gradient = ctx.createLinearGradient(0, 0, 0, colorCanvas.height);
   gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
   gradient.addColorStop(0.5, 'rgba(0, 0, 0, 0)');
@@ -906,24 +1175,6 @@ function updateColorPickerPreview(rgba) {
   colorPickerValues.textContent = `rgba(${rgba.r},${rgba.g},${rgba.b},${Math.round(rgba.a*100)/100})`;
 }
 
-colorCanvas.onclick = function(e) {
-  let rect = colorCanvas.getBoundingClientRect();
-  let x = ((e.clientX - rect.left) / colorCanvas.clientWidth) * colorCanvas.width;
-  let y = ((e.clientY - rect.top) / colorCanvas.clientHeight) * colorCanvas.height;
-  let imgData = colorCanvas.getContext('2d').getImageData(x, y, 1, 1);
-  let rgba = imgData.data;
-  let a = 1;
-  if (x > colorCanvas.width - 10) {
-    a = 1 - (y / colorCanvas.height);
-    currentPickRGBA = { ...currentPickRGBA, a: Math.max(0, Math.min(1, a)) };
-  } else {
-    currentPickRGBA = { r: rgba[0], g: rgba[1], b: rgba[2], a: currentPickRGBA.a };
-  }
-  updateColorPickerPreview(currentPickRGBA);
-};
-
-let menuColor = { r: 138, g: 43, b: 226, a: 1 };
-let currentPickRGBA = { r: 138, g: 43, b: 226, a: 1 };
 function getHueFromRGB(r,g,b) {
   r /= 255; g /= 255; b /= 255;
   let max = Math.max(r, g, b), min = Math.min(r, g, b);
@@ -943,12 +1194,62 @@ function getHueFromRGB(r,g,b) {
   return Math.round(h * 360) || 0;
 }
 
-// KEYBOARD NAVIGATION FOR DIRECT HTML TESTING
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('selectstart', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
+
 document.addEventListener('keydown', function(event) {
-    // Prevent default for navigation keys only
     const navKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Backspace'];
     if (navKeys.includes(event.code)) {
         event.preventDefault();
+    }
+    
+    if (colorPickerModal.style.display === 'flex') {
+        switch(event.code) {
+            case 'ArrowUp':
+                moveColorCursor('up');
+                break;
+            case 'ArrowDown':
+                moveColorCursor('down');
+                break;
+            case 'ArrowLeft':
+                moveColorCursor('left');
+                break;
+            case 'ArrowRight':
+                moveColorCursor('right');
+                break;
+            case 'Enter':
+                confirmColorPicker();
+                break;
+            case 'Backspace':
+                closeColorPicker();
+                break;
+        }
+        return;
+    }
+    
+    if (positionPickerModal.style.display === 'flex') {
+        switch(event.code) {
+            case 'ArrowUp':
+                movePosition('up');
+                break;
+            case 'ArrowDown':
+                movePosition('down');
+                break;
+            case 'ArrowLeft':
+                movePosition('left');
+                break;
+            case 'ArrowRight':
+                movePosition('right');
+                break;
+            case 'Enter':
+                confirmPositionPicker();
+                break;
+            case 'Backspace':
+                closePositionPicker();
+                break;
+        }
+        return;
     }
     
     switch(event.code) {
@@ -965,11 +1266,7 @@ document.addEventListener('keydown', function(event) {
             navigateRight();
             break;
         case 'Enter':
-            if (colorPickerModal.style.display === 'flex') {
-                confirmColorPicker();
-            } else {
-                selectItem();
-            }
+            selectItem();
             break;
         case 'Backspace':
             goBack();
@@ -977,7 +1274,6 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
-// Initialize
 document.documentElement.style.setProperty('--banner-hue', getHueFromRGB(138,43,226) + 'deg');
 renderMenu();
 updateMenuPosition();
