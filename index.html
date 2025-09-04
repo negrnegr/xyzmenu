@@ -681,34 +681,82 @@ let currentSpectatorPosX = 70, currentSpectatorPosY = 15;
 let tempMenuPosX = 50, tempMenuPosY = 50;
 let tempSpectatorPosX = 70, tempSpectatorPosY = 15;
 let menuColor = { r: 138, g: 43, b: 226, a: 1 };
+let currentState = 'menu'; // menu, colorpicker, positionpicker
 
 const SPECTATORS = [
   'Spectator_One', 'Spectator_Two', 'Spectator_Three', 'Spectator_Four', 'Spectator_Five'
 ];
 
+// MAIN MESSAGE HANDLER - All input comes from Lua
 window.addEventListener("message", function(event) {
     let data;
     try {
-        data = JSON.parse(event.data);
+        data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
     } catch (e) {
         return;
     }
     
-    if (data.action === "navigate") {
-        if (data.direction === "up") navigateUp();
-        if (data.direction === "down") navigateDown();
-        if (data.direction === "left") navigateLeft();
-        if (data.direction === "right") navigateRight();
+    // Report current state back to Lua
+    if (data.action === "getState") {
+        window.parent.postMessage({
+            type: 'menuState',
+            state: currentState,
+            positionMode: positionPickerMode
+        }, '*');
+        return;
     }
     
-    if (data.action === "select") selectItem();
-    if (data.action === "back") goBack();
+    // Handle navigation based on current state
+    if (data.action === "navigate") {
+        if (currentState === 'menu') {
+            // Normal menu navigation
+            if (data.direction === "up") navigateUp();
+            if (data.direction === "down") navigateDown();
+            if (data.direction === "left") navigateLeft();
+            if (data.direction === "right") navigateRight();
+        } else if (currentState === 'colorpicker') {
+            // Color picker cursor movement
+            moveColorCursor(data.direction);
+        } else if (currentState === 'positionpicker') {
+            // Position picker movement
+            movePosition(data.direction);
+        }
+    }
+    
+    if (data.action === "select") {
+        if (currentState === 'menu') {
+            selectItem();
+        } else if (currentState === 'colorpicker') {
+            confirmColorPicker();
+        } else if (currentState === 'positionpicker') {
+            confirmPositionPicker();
+        }
+    }
+    
+    if (data.action === "back") {
+        if (currentState === 'colorpicker') {
+            closeColorPicker();
+        } else if (currentState === 'positionpicker') {
+            closePositionPicker();
+        } else if (currentState === 'menu') {
+            goBack();
+        }
+    }
+    
+    if (data.action === "close") {
+        // Close menu entirely
+        currentState = 'menu';
+        closeColorPicker();
+        closePositionPicker();
+    }
+    
     if (data.action === "updateColor") {
         if (data.r && data.g && data.b) {
             document.documentElement.style.setProperty('--menu-color', `${data.r}, ${data.g}, ${data.b}`);
             if (data.a) document.documentElement.style.setProperty('--menu-alpha', data.a);
         }
     }
+    
     if (data.action === "updateBanner" && data.url) {
         document.getElementById('bannerImage').src = data.url;
     }
@@ -888,14 +936,6 @@ function selectItem() {
 }
 
 function goBack() {
-  if (colorPickerModal.style.display === 'flex') {
-    closeColorPicker();
-    return;
-  }
-  if (positionPickerModal.style.display === 'flex') {
-    closePositionPicker();
-    return;
-  }
   if (currentMenu !== 'main') {
     menuPositions[currentMenu] = currentIndex;
     currentMenu = 'main';
@@ -906,6 +946,7 @@ function goBack() {
 }
 
 function openColorPicker() {
+  currentState = 'colorpicker';
   colorPickerModal.style.display = 'flex';
   drawColorPicker();
   colorCursorX = 60;
@@ -915,15 +956,13 @@ function openColorPicker() {
 }
 
 function closeColorPicker() {
+  currentState = 'menu';
   colorPickerModal.style.display = 'none';
 }
 
 function confirmColorPicker() {
   menuColor = { ...tempMenuColor };
-  
-  // Direct style updates for immediate effect
   applyMenuColors();
-  
   closeColorPicker();
   renderMenu();
 }
@@ -934,24 +973,19 @@ function applyMenuColors() {
   const b = menuColor.b;
   const a = menuColor.a;
   
-  // Update banner with aggressive color transformation
   const bannerImg = document.getElementById('bannerImage');
   const hue = getHueFromRGB(r, g, b);
   bannerImg.style.filter = `brightness(0.85) contrast(1.3) saturate(2.0) hue-rotate(${hue}deg)`;
   
-  // Update menu container border
   const menuContainer = document.querySelector('.menu-container');
   menuContainer.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
   
-  // Update category bar border
   const categoryBar = document.querySelector('.current-category');
   categoryBar.style.borderBottomColor = `rgba(${r}, ${g}, ${b}, 0.6)`;
   
-  // Update footer border
   const footer = document.querySelector('.footer');
   footer.style.borderTopColor = `rgba(${r}, ${g}, ${b}, 0.6)`;
   
-  // Update selected menu item if exists
   const selectedItem = document.querySelector('.menu-item.selected');
   if (selectedItem) {
     selectedItem.style.background = `rgba(${r}, ${g}, ${b}, 0.2)`;
@@ -962,27 +996,21 @@ function applyMenuColors() {
     }
   }
   
-  // Update all checked checkboxes
   document.querySelectorAll('.checkbox-bar.checked').forEach(checkbox => {
     checkbox.style.background = `rgba(${r}, ${g}, ${b}, 0.8)`;
   });
   
-  // Update all slider knobs
   document.querySelectorAll('.slider-knob').forEach(knob => {
     knob.style.background = `rgb(${r}, ${g}, ${b})`;
   });
   
-  // Update color previews
   document.querySelectorAll('.color-preview').forEach(preview => {
     preview.style.background = `rgba(${r}, ${g}, ${b}, ${a})`;
   });
   
-  // Update CSS variables as fallback
   document.documentElement.style.setProperty('--menu-color', `${r}, ${g}, ${b}`);
   document.documentElement.style.setProperty('--menu-alpha', a);
   document.documentElement.style.setProperty('--banner-hue', `${hue}deg`);
-  
-  console.log(`Applied menu color: rgb(${r}, ${g}, ${b}) with banner hue: ${hue}deg`);
 }
 
 function updateColorPickerCursor() {
@@ -1019,6 +1047,7 @@ function moveColorCursor(direction) {
 }
 
 function openPositionPicker(mode) {
+  currentState = 'positionpicker';
   positionPickerMode = mode;
   positionPickerModal.style.display = 'flex';
   
@@ -1034,6 +1063,7 @@ function openPositionPicker(mode) {
 }
 
 function closePositionPicker() {
+  currentState = 'menu';
   if (positionPickerMode === 'menu') {
     updateMenuPosition();
   } else if (positionPickerMode === 'spectator') {
@@ -1194,90 +1224,16 @@ function getHueFromRGB(r,g,b) {
   return Math.round(h * 360) || 0;
 }
 
+// Remove ALL native keyboard handlers - everything comes from Lua!
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('selectstart', e => e.preventDefault());
 document.addEventListener('dragstart', e => e.preventDefault());
 
-document.addEventListener('keydown', function(event) {
-    const navKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Backspace'];
-    if (navKeys.includes(event.code)) {
-        event.preventDefault();
-    }
-    
-    if (colorPickerModal.style.display === 'flex') {
-        switch(event.code) {
-            case 'ArrowUp':
-                moveColorCursor('up');
-                break;
-            case 'ArrowDown':
-                moveColorCursor('down');
-                break;
-            case 'ArrowLeft':
-                moveColorCursor('left');
-                break;
-            case 'ArrowRight':
-                moveColorCursor('right');
-                break;
-            case 'Enter':
-                confirmColorPicker();
-                break;
-            case 'Backspace':
-                closeColorPicker();
-                break;
-        }
-        return;
-    }
-    
-    if (positionPickerModal.style.display === 'flex') {
-        switch(event.code) {
-            case 'ArrowUp':
-                movePosition('up');
-                break;
-            case 'ArrowDown':
-                movePosition('down');
-                break;
-            case 'ArrowLeft':
-                movePosition('left');
-                break;
-            case 'ArrowRight':
-                movePosition('right');
-                break;
-            case 'Enter':
-                confirmPositionPicker();
-                break;
-            case 'Backspace':
-                closePositionPicker();
-                break;
-        }
-        return;
-    }
-    
-    switch(event.code) {
-        case 'ArrowUp':
-            navigateUp();
-            break;
-        case 'ArrowDown':
-            navigateDown();
-            break;
-        case 'ArrowLeft':
-            navigateLeft();
-            break;
-        case 'ArrowRight':
-            navigateRight();
-            break;
-        case 'Enter':
-            selectItem();
-            break;
-        case 'Backspace':
-            goBack();
-            break;
-    }
-});
-
+// Initialize
 document.documentElement.style.setProperty('--banner-hue', getHueFromRGB(138,43,226) + 'deg');
 renderMenu();
 updateMenuPosition();
-console.log("XYZ Menu loaded - Navigation: Arrow Keys, Enter=Select, Backspace=Back");
+console.log("XYZ Menu loaded - Waiting for Lua messages");
 </script>
 </body>
 </html>
