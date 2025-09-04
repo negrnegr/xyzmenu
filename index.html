@@ -935,7 +935,7 @@ function selectItem() {
   }
 }
 
-// SIMPLE: If at main menu, signal Lua to close. Otherwise navigate back.
+// At main menu - close menu directly
 function goBack() {
   if (currentMenu !== 'main') {
     // Go back to previous menu
@@ -959,8 +959,16 @@ function goBack() {
     viewportStart = 0;
     renderMenu();
   } else {
-    // At main menu - tell Lua to close menu
+    // At main menu - hide menu immediately and signal Lua
+    document.body.style.display = 'none';
     window.shouldCloseLua = true;
+    
+    // Show menu back after a short delay
+    setTimeout(() => {
+      if (document.body) {
+        document.body.style.display = '';
+      }
+    }, 100);
   }
 }
 
