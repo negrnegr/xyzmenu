@@ -698,6 +698,9 @@ let tempSpectatorPosX = 70, tempSpectatorPosY = 15;
 let menuColor = { r: 138, g: 43, b: 226, a: 1 };
 let currentState = 'menu'; // menu, colorpicker, positionpicker
 
+// Flag to prevent menu reopening
+let isClosingViaBackspace = false;
+
 const SPECTATORS = [
   'Spectator_One', 'Spectator_Two', 'Spectator_Three', 'Spectator_Four', 'Spectator_Five'
 ];
@@ -748,6 +751,7 @@ window.addEventListener("message", function(event) {
         currentState = 'menu';
         closeColorPicker();
         closePositionPicker();
+        isClosingViaBackspace = false;
     }
     
     if (data.action === "updateColor") {
@@ -761,6 +765,9 @@ window.addEventListener("message", function(event) {
         document.getElementById('bannerImage').src = data.url;
     }
 });
+
+// Expose the current menu for Lua to check
+window.currentMenu = currentMenu;
 
 function getDynamicCarFont(car) {
   if (car.length >= 20) return "11px";
@@ -837,6 +844,9 @@ function renderMenu() {
   indexDisplay.textContent = `${currentIndex + 1}/${items.length}`;
   categoryDisplay.textContent = currentMenu === 'main' ? 'Main Menu' : capitalizeFirst(currentMenu);
   updateSpectatorOverlay();
+  
+  // Update the global variable for Lua
+  window.currentMenu = currentMenu;
 }
 
 function capitalizeFirst(str) {
@@ -935,7 +945,7 @@ function selectItem() {
   }
 }
 
-// At main menu - close menu directly
+// Fixed goBack function - properly communicates with Lua
 function goBack() {
   if (currentMenu !== 'main') {
     // Go back to previous menu
@@ -959,16 +969,25 @@ function goBack() {
     viewportStart = 0;
     renderMenu();
   } else {
-    // At main menu - hide menu immediately and signal Lua
-    document.body.style.display = 'none';
-    window.shouldCloseLua = true;
-    
-    // Show menu back after a short delay
-    setTimeout(() => {
-      if (document.body) {
-        document.body.style.display = '';
-      }
-    }, 100);
+    // At main menu - signal Lua to close menu
+    if (!isClosingViaBackspace) {
+      isClosingViaBackspace = true;
+      
+      // Set flag for Lua to detect
+      window.closeMenuFromBackspace = true;
+      
+      // Also set alternative flags for compatibility
+      window.shouldCloseLua = true;
+      window.isClosingMenu = true;
+      
+      // Reset flags after a short delay
+      setTimeout(() => {
+        isClosingViaBackspace = false;
+        window.closeMenuFromBackspace = false;
+        window.shouldCloseLua = false;
+        window.isClosingMenu = false;
+      }, 300);
+    }
   }
 }
 
@@ -1214,7 +1233,7 @@ function drawColorPicker() {
   gradient.addColorStop(1 / 6, '#ffff00');
   gradient.addColorStop((1 / 6) * 2, '#00ff00');
   gradient.addColorStop((1 / 6) * 3, '#00ffff');
-  gradient.addColorStop((1 / 6) * 4, '0000ff');
+  gradient.addColorStop((1 / 6) * 4, '#0000ff');
   gradient.addColorStop((1 / 6) * 5, '#ff00ff');
   gradient.addColorStop(1, '#ff0000');
   ctx.fillStyle = gradient;
