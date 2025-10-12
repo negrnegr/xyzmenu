@@ -14,18 +14,18 @@
       --menu-y: 0px;
       --menu-alpha: 1;
       --banner-hue: 0deg;
-      --menu-item-height: 41px;
+      --menu-item-height: 36px;
       --menu-visible-items: 9;
       --menu-list-padding: 6px;
       --banner-height: 54px;
-      --categorybar-height: 23px;
-      --footer-height: 23px;
-      --menu-width: 340px;
+      --categorybar-height: 28px;
+      --footer-height: 28px;
+      --menu-width: 280px;
     }
     html, body {
       background: none !important;
       background-color: transparent !important;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       height: 100vh;
       width: 100vw;
       overflow: hidden;
@@ -53,10 +53,10 @@
       width: var(--menu-width);
       background: none !important;
       background-color: transparent !important;
-      border-radius: 8px;
+      border-radius: 4px;
       overflow: hidden;
       backdrop-filter: none !important;
-      border: 1px solid rgba(var(--menu-color), 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: none !important;
       display: flex;
       flex-direction: column;
@@ -67,7 +67,7 @@
     .banner {
       position: relative;
       overflow: hidden;
-      border-radius: 8px 8px 0 0;
+      border-radius: 4px 4px 0 0;
       height: var(--banner-height);
       min-height: var(--banner-height);
       background: none !important;
@@ -91,14 +91,15 @@
       display: none;
     }
     .current-category {
-      background: rgba(0, 0, 0, 0.9) !important;
-      color: #fff;
-      padding: 8px 18px 8px 18px;
-      font-size: 13px;
-      font-weight: 600;
+      background: rgba(18, 18, 18, 0.92) !important;
+      color: rgba(255, 255, 255, 0.7);
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 500;
       text-align: center;
-      border-bottom: 2px solid rgba(var(--menu-color), 0.6);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       letter-spacing: 0.5px;
+      text-transform: uppercase;
       position: relative;
       min-height: var(--categorybar-height);
       line-height: 1.15;
@@ -110,28 +111,42 @@
       z-index: 1;
       pointer-events: none;
     }
+    .header-icon {
+      position: absolute;
+      left: 10px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(var(--menu-color), 0.8);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
     .menu-items {
       flex: 1 1 auto;
       min-height: 0;
       overflow: hidden;
       position: relative;
       padding: var(--menu-list-padding) 0 10px 0;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(18, 18, 18, 0.92);
       pointer-events: none;
     }
     .menu-item {
       height: var(--menu-item-height);
-      padding: 0 18px;
+      padding: 0 10px;
       margin: 0 0 1px 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 400;
       color: rgba(255, 255, 255, 0.9);
       background: transparent;
       border: none;
-      transition: background 0.15s ease;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      transition: background 0.1s ease;
       position: absolute;
       width: calc(100% - 0px);
       left: 0px;
@@ -139,13 +154,12 @@
       opacity: 1;
     }
     .menu-item:hover {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.02);
     }
     .menu-item.selected {
-      background: rgba(var(--menu-color), 0.2);
+      background: rgba(var(--menu-color), 0.15);
       opacity: 1;
       z-index: 2;
-      border-left: 3px solid rgb(var(--menu-color));
     }
     .menu-item.selected > span:first-child {
       color: rgb(var(--menu-color));
@@ -157,19 +171,19 @@
       letter-spacing: 0.2px;
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 6px;
     }
     .arrow {
-      color: #fff;
+      color: rgba(255, 255, 255, 0.4);
       font-weight: 700;
-      font-size: 16px;
-      margin-left: 6px;
+      font-size: 14px;
+      margin-left: 4px;
     }
     .checkbox-bar {
-      width: 44px; 
-      height: 24px;
-      background: rgba(100, 100, 100, 0.6);
-      border-radius: 12px;
+      width: 38px; 
+      height: 20px;
+      background: rgba(100, 100, 100, 0.4);
+      border-radius: 10px;
       border: none;
       position: relative;
       display: flex;
@@ -179,30 +193,30 @@
       pointer-events: none;
     }
     .checkbox-bar.checked {
-      background: rgba(var(--menu-color), 0.8);
+      background: rgba(var(--menu-color), 0.6);
     }
     .checkbox-knob {
-      width: 18px; 
-      height: 18px; 
+      width: 16px; 
+      height: 16px; 
       border-radius: 50%;
       background: #fff;
       border: none;
       position: absolute; 
-      left: 3px; 
-      top: 3px;
+      left: 2px; 
+      top: 2px;
       transition: left 0.2s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
       pointer-events: none;
     }
     .checkbox-bar.checked .checkbox-knob {
-      left: 23px;
+      left: 20px;
       background: #fff;
     }
     .slider-bar {
-      width: 80px; 
-      height: 6px;
-      background: rgba(100, 100, 100, 0.6);
-      border-radius: 3px;
+      width: 70px; 
+      height: 4px;
+      background: rgba(100, 100, 100, 0.4);
+      border-radius: 2px;
       border: none;
       position: relative;
       display: flex;
@@ -211,16 +225,16 @@
       pointer-events: none;
     }
     .slider-knob {
-      width: 16px; 
-      height: 16px; 
+      width: 12px; 
+      height: 12px; 
       border-radius: 50%;
       background: rgb(var(--menu-color));
       border: none;
       position: absolute; 
-      top: -5px; 
+      top: -4px; 
       left: 0;
       transition: left 0.15s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
       z-index: 2;
       pointer-events: none;
     }
@@ -229,32 +243,33 @@
       left: 0; 
       top: 0; 
       height: 100%;
-      background: rgba(255, 255, 255, 0.8);
-      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 2px;
       z-index: 1; 
       pointer-events: none;
       transition: width 0.15s ease;
     }
     .color-preview {
-      width: 14px; height: 14px;
+      width: 12px; 
+      height: 12px;
       background: rgba(var(--menu-color), var(--menu-alpha, 1));
-      border-radius: 4px;
-      border: 1.2px solid rgba(255,255,255,0.3);
-      box-shadow: 0 0 5px 1px rgba(255, 255, 255, 0.12);
+      border-radius: 2px;
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
       margin-right: 2px;
       pointer-events: none;
     }
     .car-name-dynamic {
       display: inline-block;
-      min-width: 70px;
+      min-width: 60px;
       text-align: center;
       font-family: monospace;
-      padding: 2px 8px;
-      color: #fff;
+      padding: 2px 6px;
+      color: rgba(255, 255, 255, 0.8);
       user-select: none;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-      font-size: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 2px;
+      font-size: 10px;
       pointer-events: none;
     }
     .custom-scrollbar {
@@ -262,10 +277,10 @@
     }
     .spectator-overlay {
       position: fixed;
-      background: rgba(0, 0, 0, 0.85);
-      border-radius: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      background: rgba(18, 18, 18, 0.92);
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: none;
       z-index: 200;
       display: none;
       flex-direction: column;
@@ -275,17 +290,17 @@
       max-width: 180px;
       pointer-events: none;
       overflow: visible;
-      transition: box-shadow 0.2s;
     }
     .spectator-overlay-title {
-      color: #fff;
-      font-weight: 600;
-      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 500;
+      font-size: 11px;
       letter-spacing: 0.5px;
+      text-transform: uppercase;
       margin-bottom: 6px;
       text-align: center;
       padding-bottom: 4px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
     .spectator-overlay-divider {
       display: none;
@@ -325,9 +340,9 @@
       position: fixed;
       left: 50%; top: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.9);
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(18, 18, 18, 0.92);
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
       z-index: 999;
       padding: 20px;
       display: none;
@@ -335,15 +350,15 @@
       gap: 12px;
       align-items: center;
       min-width: 160px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      box-shadow: none;
       pointer-events: none;
     }
     .color-picker-canvas {
-      border-radius: 6px;
-      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       width: 120px;
       height: 60px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       background: #111;
       position: relative;
       pointer-events: none;
@@ -352,9 +367,9 @@
       position: absolute;
       width: 12px;
       height: 12px;
-      border: 3px solid #fff;
+      border: 2px solid #fff;
       border-radius: 50%;
-      box-shadow: 0 0 0 2px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.8);
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.8), 0 0 10px rgba(255,255,255,0.5);
       pointer-events: none;
       transform: translate(-50%, -50%);
       z-index: 10;
@@ -362,35 +377,32 @@
       background: rgba(255,255,255,0.2);
       animation: pulse 2s infinite;
     }
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 2px rgba(0,0,0,0.8), 0 0 15px rgba(255,255,255,0.6); }
-      50% { box-shadow: 0 0 0 2px rgba(0,0,0,0.8), 0 0 25px rgba(255,255,255,1); }
-    }
     .color-picker-preview {
       margin: 0 auto;
       width: 30px; height: 30px;
-      border-radius: 6px;
-      border: 2px solid rgba(255, 255, 255, 0.5);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       background: rgba(var(--menu-color), var(--menu-alpha, 1));
     }
     .color-picker-label {
-      color: #fff;
-      font-size: 14px;
-      font-weight: 600;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 11px;
+      font-weight: 500;
       display: block;
       text-align: center;
       letter-spacing: 0.5px;
+      text-transform: uppercase;
     }
     .color-picker-values {
-      color: rgba(255, 255, 255, 0.8);
+      color: rgba(255, 255, 255, 0.6);
       font-family: monospace;
-      font-size: 11px;
+      font-size: 10px;
       text-align: center;
     }
     .color-picker-instructions {
-      color: #bbb;
-      font-size: 10px;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 9px;
       text-align: center;
       line-height: 1.4;
     }
@@ -398,9 +410,9 @@
       position: fixed;
       left: 50%; top: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.9);
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(18, 18, 18, 0.92);
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
       z-index: 998;
       padding: 20px;
       display: none;
@@ -408,32 +420,34 @@
       gap: 16px;
       align-items: center;
       min-width: 240px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      box-shadow: none;
       pointer-events: none;
     }
     .position-picker-label {
-      color: #fff;
-      font-size: 14px;
-      font-weight: 600;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 11px;
+      font-weight: 500;
       text-align: center;
       letter-spacing: 0.5px;
+      text-transform: uppercase;
     }
     .position-picker-instructions {
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 11px;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 10px;
       text-align: center;
       line-height: 1.6;
       max-width: 200px;
     }
     .footer {
-      background: rgba(0, 0, 0, 0.9) !important;
+      background: rgba(18, 18, 18, 0.92) !important;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 6px 18px;
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.7);
-      border-top: 2px solid rgba(var(--menu-color), 0.6);
+      padding: 6px 10px;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.5);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0 0 4px 4px;
       font-weight: 400;
       letter-spacing: 0.3px;
       height: var(--footer-height);
@@ -446,7 +460,7 @@
     .footer > div { display: flex; align-items: center; gap: 8px; }
     .version::before {
       content: '●';
-      color: rgb(var(--accent-color));
+      color: rgb(var(--menu-color));
       animation: pulse-dot 2s infinite;
       font-size: 8px;
       margin-right: 4px;
@@ -456,13 +470,13 @@
       50% { opacity: 0.6; transform: scale(1.1); }
     }
     .page {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 2px 8px;
-      border-radius: 4px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2px 6px;
+      border-radius: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
       font-family: 'Inter', sans-serif;
-      font-weight: 500;
-      font-size: 10px;
+      font-weight: 400;
+      font-size: 9px;
     }
   </style>
 </head>
@@ -473,6 +487,7 @@
       <img src="https://raw.githubusercontent.com/arresmr/xyzmenu/refs/heads/main/banner/bannernew.gif" alt="XYZ Menu Banner" id="bannerImage">
     </div>
     <div class="current-category" id="currentCategory">
+      <div class="header-icon"></div>
       <span id="categoryName">Main Menu</span>
     </div>
     <div class="menu-items" id="menuList"></div>
@@ -667,11 +682,11 @@ let currentIndex = 0;
 let viewportStart = 0;
 let menuPositions = {};
 const VISIBLE_ITEMS = 9;
-const ITEM_HEIGHT = 40;
-const categoryBarHeight = 24;
+const ITEM_HEIGHT = 36;
+const categoryBarHeight = 28;
 const bannerHeight = 54;
-const footerHeight = 23;
-const menuWidth = 340;
+const footerHeight = 28;
+const menuWidth = 280;
 
 const spectatorOverlay = document.getElementById('spectatorOverlay');
 const spectatorListOverlay = document.getElementById('spectatorListOverlay');
@@ -696,16 +711,14 @@ let currentSpectatorPosX = 70, currentSpectatorPosY = 15;
 let tempMenuPosX = 50, tempMenuPosY = 50;
 let tempSpectatorPosX = 70, tempSpectatorPosY = 15;
 let menuColor = { r: 138, g: 43, b: 226, a: 1 };
-let currentState = 'menu'; // menu, colorpicker, positionpicker
+let currentState = 'menu';
 
-// Flag to prevent menu reopening
 let isClosingViaBackspace = false;
 
 const SPECTATORS = [
   'Spectator_One', 'Spectator_Two', 'Spectator_Three', 'Spectator_Four', 'Spectator_Five'
 ];
 
-// MAIN MESSAGE HANDLER - All input comes from Lua
 window.addEventListener("message", function(event) {
     let data;
     try {
@@ -766,21 +779,20 @@ window.addEventListener("message", function(event) {
     }
 });
 
-// Expose the current menu for Lua to check
 window.currentMenu = currentMenu;
 
 function getDynamicCarFont(car) {
-  if (car.length >= 20) return "11px";
-  if (car.length >= 15) return "12px";
-  if (car.length >= 11) return "13px";
-  return "14px";
+  if (car.length >= 20) return "9px";
+  if (car.length >= 15) return "10px";
+  if (car.length >= 11) return "10px";
+  return "10px";
 }
 
 function getDynamicSpectatorFont(name) {
   if (name.length >= 19) return "9px";
   if (name.length >= 15) return "10px";
   if (name.length >= 11) return "10.5px";
-  return "12px";
+  return "11px";
 }
 
 function createMenuItem(item, index) {
@@ -797,7 +809,7 @@ function createMenuItem(item, index) {
       break;
     case 'slider':
       const percent = (item.value - item.min) / (item.max - item.min);
-      const knobLeft = percent * (80 - 16);
+      const knobLeft = percent * (70 - 12);
       rightElement = `<div class="slider-bar"><div class="slider-fill" style="width:${percent*100}%"></div><div class="slider-knob" style="left:${knobLeft}px"></div></div>`;
       break;
     case 'color':
@@ -845,7 +857,6 @@ function renderMenu() {
   categoryDisplay.textContent = currentMenu === 'main' ? 'Main Menu' : capitalizeFirst(currentMenu);
   updateSpectatorOverlay();
   
-  // Update the global variable for Lua
   window.currentMenu = currentMenu;
 }
 
@@ -945,13 +956,10 @@ function selectItem() {
   }
 }
 
-// Fixed goBack function - properly communicates with Lua
 function goBack() {
   if (currentMenu !== 'main') {
-    // Go back to previous menu
     menuPositions[currentMenu] = currentIndex;
     
-    // Find parent menu
     let parentMenu = 'main';
     if (currentMenu === 'spawnvehicle' || currentMenu === 'sportscars' || currentMenu === 'supercars' || 
         currentMenu === 'motorcycles' || currentMenu === 'trucks' || currentMenu === 'aircraft') {
@@ -969,18 +977,14 @@ function goBack() {
     viewportStart = 0;
     renderMenu();
   } else {
-    // At main menu - signal Lua to close menu
     if (!isClosingViaBackspace) {
       isClosingViaBackspace = true;
       
-      // Set flag for Lua to detect
       window.closeMenuFromBackspace = true;
       
-      // Also set alternative flags for compatibility
       window.shouldCloseLua = true;
       window.isClosingMenu = true;
       
-      // Reset flags after a short delay
       setTimeout(() => {
         isClosingViaBackspace = false;
         window.closeMenuFromBackspace = false;
@@ -1026,37 +1030,6 @@ function applyMenuColors() {
   const bannerImg = document.getElementById('bannerImage');
   const hue = getHueFromRGB(r, g, b);
   bannerImg.style.filter = `brightness(0.85) contrast(1.3) saturate(2.0) hue-rotate(${hue}deg)`;
-  
-  const menuContainer = document.querySelector('.menu-container');
-  menuContainer.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
-  
-  const categoryBar = document.querySelector('.current-category');
-  categoryBar.style.borderBottomColor = `rgba(${r}, ${g}, ${b}, 0.6)`;
-  
-  const footer = document.querySelector('.footer');
-  footer.style.borderTopColor = `rgba(${r}, ${g}, ${b}, 0.6)`;
-  
-  const selectedItem = document.querySelector('.menu-item.selected');
-  if (selectedItem) {
-    selectedItem.style.background = `rgba(${r}, ${g}, ${b}, 0.2)`;
-    selectedItem.style.borderLeftColor = `rgb(${r}, ${g}, ${b})`;
-    const selectedText = selectedItem.querySelector('span:first-child');
-    if (selectedText) {
-      selectedText.style.color = `rgb(${r}, ${g}, ${b})`;
-    }
-  }
-  
-  document.querySelectorAll('.checkbox-bar.checked').forEach(checkbox => {
-    checkbox.style.background = `rgba(${r}, ${g}, ${b}, 0.8)`;
-  });
-  
-  document.querySelectorAll('.slider-knob').forEach(knob => {
-    knob.style.background = `rgb(${r}, ${g}, ${b})`;
-  });
-  
-  document.querySelectorAll('.color-preview').forEach(preview => {
-    preview.style.background = `rgba(${r}, ${g}, ${b}, ${a})`;
-  });
   
   document.documentElement.style.setProperty('--menu-color', `${r}, ${g}, ${b}`);
   document.documentElement.style.setProperty('--menu-alpha', a);
@@ -1278,7 +1251,6 @@ function getHueFromRGB(r,g,b) {
   return Math.round(h * 360) || 0;
 }
 
-// Disable all mouse and keyboard interactions
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('selectstart', e => e.preventDefault());
 document.addEventListener('dragstart', e => e.preventDefault());
@@ -1291,7 +1263,6 @@ document.addEventListener('keydown', e => e.preventDefault());
 document.addEventListener('keyup', e => e.preventDefault());
 document.addEventListener('keypress', e => e.preventDefault());
 
-// Initialize
 document.documentElement.style.setProperty('--banner-hue', getHueFromRGB(138,43,226) + 'deg');
 renderMenu();
 updateMenuPosition();
