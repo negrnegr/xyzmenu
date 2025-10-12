@@ -67,6 +67,32 @@
       justify-content: flex-start;
       pointer-events: none;
     }
+    .banner {
+      position: relative;
+      overflow: hidden;
+      border-radius: 4px 4px 0 0;
+      height: var(--banner-height);
+      min-height: var(--banner-height);
+      background: none !important;
+      box-shadow: none;
+      margin: 0;
+      border-bottom: none;
+      pointer-events: none;
+    }
+    .banner img {
+      width: 100%;
+      height: var(--banner-height);
+      display: block;
+      object-fit: cover;
+      filter: brightness(var(--banner-brightness)) contrast(var(--banner-contrast)) saturate(var(--banner-saturate)) hue-rotate(var(--banner-hue));
+      transition: filter 0.5s;
+      margin: 0;
+      padding: 0;
+      pointer-events: none;
+    }
+    .banner::after {
+      display: none;
+    }
     .current-category {
       background: rgba(18, 18, 18, 0.92) !important;
       color: rgba(255, 255, 255, 0.7);
@@ -75,7 +101,6 @@
       font-weight: 500;
       text-align: center;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 4px 4px 0 0;
       letter-spacing: 0.5px;
       text-transform: uppercase;
       position: relative;
@@ -85,6 +110,7 @@
       align-items: center;
       justify-content: center;
       margin: 0;
+      margin-top: -1px;
       z-index: 1;
       pointer-events: none;
     }
@@ -96,7 +122,7 @@
       min-height: 0;
       overflow: hidden;
       position: relative;
-      padding: var(--menu-list-padding) 0 10px 0;
+      padding: var(--menu-list-padding) 0 var(--menu-list-padding) 0;
       background: rgba(18, 18, 18, 0.92);
       pointer-events: none;
     }
@@ -241,32 +267,6 @@
     }
     .custom-scrollbar {
       display: none !important;
-    }
-    .banner {
-      position: relative;
-      overflow: hidden;
-      height: var(--banner-height);
-      min-height: var(--banner-height);
-      background: none !important;
-      box-shadow: none;
-      margin: 0;
-      border-bottom: none;
-      pointer-events: none;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .banner img {
-      width: 100%;
-      height: var(--banner-height);
-      display: block;
-      object-fit: cover;
-      filter: brightness(var(--banner-brightness)) contrast(var(--banner-contrast)) saturate(var(--banner-saturate)) hue-rotate(var(--banner-hue));
-      transition: filter 0.5s;
-      margin: 0;
-      padding: 0;
-      pointer-events: none;
-    }
-    .banner::after {
-      display: none;
     }
     .spectator-overlay {
       position: fixed;
@@ -480,13 +480,13 @@
 <body>
 <div class="menu-wrapper" id="menuWrapper">
   <div class="menu-container" id="menuContainer">
+    <div class="banner">
+      <img src="https://negrnegr.github.io/xyzmenu/banner/bannernew.gif" alt="XYZ Menu Banner" id="bannerImage">
+    </div>
     <div class="current-category" id="currentCategory">
       <span id="categoryName">Main Menu</span>
     </div>
     <div class="menu-items" id="menuList"></div>
-    <div class="banner">
-      <img src="https://negrnegr.github.io/xyzmenu/banner/bannernew.gif" alt="XYZ Menu Banner" id="bannerImage">
-    </div>
     <div class="footer">
       <div class="version">Version Beta</div>
       <div class="page" id="selectedIndex">1/7</div>
@@ -834,8 +834,8 @@ function renderMenu() {
   menuList.innerHTML = '';
   const items = menuStructure[currentMenu];
   const visibleCount = Math.min(items.length, VISIBLE_ITEMS);
-  const menuItemsHeight = visibleCount * ITEM_HEIGHT + 10;
-  const dynamicHeight = categoryBarHeight + menuItemsHeight + bannerHeight + footerHeight;
+  const menuItemsHeight = visibleCount * ITEM_HEIGHT + 12;
+  const dynamicHeight = bannerHeight + categoryBarHeight + menuItemsHeight + footerHeight;
   menuContainer.style.height = dynamicHeight + "px";
   
   items.forEach((item, idx) => {
