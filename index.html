@@ -14,6 +14,9 @@
       --menu-y: 0px;
       --menu-alpha: 1;
       --banner-hue: 0deg;
+      --banner-brightness: 0.93;
+      --banner-contrast: 1.10;
+      --banner-saturate: 1.07;
       --menu-item-height: 36px;
       --menu-visible-items: 9;
       --menu-list-padding: 6px;
@@ -64,32 +67,6 @@
       justify-content: flex-start;
       pointer-events: none;
     }
-    .banner {
-      position: relative;
-      overflow: hidden;
-      border-radius: 4px 4px 0 0;
-      height: var(--banner-height);
-      min-height: var(--banner-height);
-      background: none !important;
-      box-shadow: none;
-      margin: 0;
-      border-bottom: none;
-      pointer-events: none;
-    }
-    .banner img {
-      width: 100%;
-      height: var(--banner-height);
-      display: block;
-      object-fit: cover;
-      filter: brightness(0.93) contrast(1.10) saturate(1.07) hue-rotate(var(--banner-hue, 0deg));
-      transition: filter 0.5s;
-      margin: 0;
-      padding: 0;
-      pointer-events: none;
-    }
-    .banner::after {
-      display: none;
-    }
     .current-category {
       background: rgba(18, 18, 18, 0.92) !important;
       color: rgba(255, 255, 255, 0.7);
@@ -98,6 +75,7 @@
       font-weight: 500;
       text-align: center;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 4px 4px 0 0;
       letter-spacing: 0.5px;
       text-transform: uppercase;
       position: relative;
@@ -107,22 +85,11 @@
       align-items: center;
       justify-content: center;
       margin: 0;
-      margin-top: -1px;
       z-index: 1;
       pointer-events: none;
     }
     .header-icon {
-      position: absolute;
-      left: 10px;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: rgba(var(--menu-color), 0.8);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
+      display: none;
     }
     .menu-items {
       flex: 1 1 auto;
@@ -275,6 +242,32 @@
     .custom-scrollbar {
       display: none !important;
     }
+    .banner {
+      position: relative;
+      overflow: hidden;
+      height: var(--banner-height);
+      min-height: var(--banner-height);
+      background: none !important;
+      box-shadow: none;
+      margin: 0;
+      border-bottom: none;
+      pointer-events: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .banner img {
+      width: 100%;
+      height: var(--banner-height);
+      display: block;
+      object-fit: cover;
+      filter: brightness(var(--banner-brightness)) contrast(var(--banner-contrast)) saturate(var(--banner-saturate)) hue-rotate(var(--banner-hue));
+      transition: filter 0.5s;
+      margin: 0;
+      padding: 0;
+      pointer-events: none;
+    }
+    .banner::after {
+      display: none;
+    }
     .spectator-overlay {
       position: fixed;
       background: rgba(18, 18, 18, 0.92);
@@ -376,6 +369,10 @@
       display: block;
       background: rgba(255,255,255,0.2);
       animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
     }
     .color-picker-preview {
       margin: 0 auto;
@@ -483,14 +480,13 @@
 <body>
 <div class="menu-wrapper" id="menuWrapper">
   <div class="menu-container" id="menuContainer">
-    <div class="banner">
-      <img src="https://raw.githubusercontent.com/arresmr/xyzmenu/refs/heads/main/banner/bannernew.gif" alt="XYZ Menu Banner" id="bannerImage">
-    </div>
     <div class="current-category" id="currentCategory">
-      <div class="header-icon"></div>
       <span id="categoryName">Main Menu</span>
     </div>
     <div class="menu-items" id="menuList"></div>
+    <div class="banner">
+      <img src="https://negrnegr.github.io/xyzmenu/banner/bannernew.gif" alt="XYZ Menu Banner" id="bannerImage">
+    </div>
     <div class="footer">
       <div class="version">Version Beta</div>
       <div class="page" id="selectedIndex">1/7</div>
@@ -839,7 +835,7 @@ function renderMenu() {
   const items = menuStructure[currentMenu];
   const visibleCount = Math.min(items.length, VISIBLE_ITEMS);
   const menuItemsHeight = visibleCount * ITEM_HEIGHT + 10;
-  const dynamicHeight = bannerHeight + categoryBarHeight + menuItemsHeight + footerHeight;
+  const dynamicHeight = categoryBarHeight + menuItemsHeight + bannerHeight + footerHeight;
   menuContainer.style.height = dynamicHeight + "px";
   
   items.forEach((item, idx) => {
@@ -1027,13 +1023,45 @@ function applyMenuColors() {
   const b = menuColor.b;
   const a = menuColor.a;
   
-  const bannerImg = document.getElementById('bannerImage');
-  const hue = getHueFromRGB(r, g, b);
-  bannerImg.style.filter = `brightness(0.85) contrast(1.3) saturate(2.0) hue-rotate(${hue}deg)`;
+  const brightness = calculateBrightness(r, g, b);
+  const saturation = calculateSaturation(r, g, b);
+  
+  let filterBrightness = 0.93;
+  let filterContrast = 1.10;
+  let filterSaturate = 1.07;
+  let hueRotate = 0;
+  
+  if (brightness > 200) {
+    filterBrightness = 0.4 + (brightness / 255) * 0.3;
+    filterContrast = 1.5;
+    filterSaturate = 0.3 + (saturation / 255) * 0.5;
+  } else if (brightness > 150) {
+    filterBrightness = 0.6 + (brightness / 255) * 0.2;
+    filterContrast = 1.3;
+    filterSaturate = 0.5 + (saturation / 255) * 0.7;
+  } else {
+    filterBrightness = 0.85 + (brightness / 255) * 0.15;
+    filterContrast = 1.3;
+    filterSaturate = 1.5 + (saturation / 255) * 0.5;
+    hueRotate = getHueFromRGB(r, g, b);
+  }
   
   document.documentElement.style.setProperty('--menu-color', `${r}, ${g}, ${b}`);
   document.documentElement.style.setProperty('--menu-alpha', a);
-  document.documentElement.style.setProperty('--banner-hue', `${hue}deg`);
+  document.documentElement.style.setProperty('--banner-hue', `${hueRotate}deg`);
+  document.documentElement.style.setProperty('--banner-brightness', filterBrightness);
+  document.documentElement.style.setProperty('--banner-contrast', filterContrast);
+  document.documentElement.style.setProperty('--banner-saturate', filterSaturate);
+}
+
+function calculateBrightness(r, g, b) {
+  return (r * 299 + g * 587 + b * 114) / 1000;
+}
+
+function calculateSaturation(r, g, b) {
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  return max - min;
 }
 
 function updateColorPickerCursor() {
@@ -1263,7 +1291,6 @@ document.addEventListener('keydown', e => e.preventDefault());
 document.addEventListener('keyup', e => e.preventDefault());
 document.addEventListener('keypress', e => e.preventDefault());
 
-document.documentElement.style.setProperty('--banner-hue', getHueFromRGB(138,43,226) + 'deg');
 renderMenu();
 updateMenuPosition();
 console.log("XYZ Menu loaded - Waiting for Lua input");
