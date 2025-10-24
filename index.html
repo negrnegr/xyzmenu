@@ -544,6 +544,9 @@
         let moveTimer = null;
         let keyHoldStart = 0;
         let originalPosition = { top: 20, right: 20 };
+        
+        // Global variable that Lua can check
+        window.isMovingMenuActive = false;
 
         const menuContainer = document.getElementById('menuContainer');
         const moveModal = document.getElementById('moveModal');
@@ -679,6 +682,9 @@
                 top: rect.top,
                 right: window.innerWidth - rect.right
             };
+            
+            // Notify Lua that we entered move menu mode
+            window.parent.postMessage({ type: 'moveMenuStarted' }, '*');
         }
 
         function confirmMoveMenu() {
@@ -686,6 +692,9 @@
             moveModal.classList.remove('active');
             moveSpeed = 150;
             keyHoldStart = 0;
+            
+            // Notify Lua that we exited move menu mode
+            window.parent.postMessage({ type: 'moveMenuEnded' }, '*');
         }
 
         function cancelMoveMenu() {
@@ -695,6 +704,9 @@
             menuContainer.style.right = originalPosition.right + 'px';
             moveSpeed = 150;
             keyHoldStart = 0;
+            
+            // Notify Lua that we exited move menu mode
+            window.parent.postMessage({ type: 'moveMenuEnded' }, '*');
         }
 
         function moveMenu(direction) {
@@ -853,13 +865,28 @@
                 } else {
                     const selectedItem = items[selectedIndex];
                     const checkbox = selectedItem.querySelector('.checkbox-container');
+                    const link = selectedItem.querySelector('.menu-link');
+                    
                     if (checkbox) {
                         checkbox.classList.toggle('active');
+                    } else if (link) {
+                        // This is a button type item (like Move Menu)
+                        link.click();
                     }
                 }
             } else if (event.data.action === 'back') {
                 if (currentMenu === 'submenu') {
                     hideSubmenu();
+                }
+            } else if (event.data.action === 'enterMoveMode') {
+                // Lua activated move menu mode
+                startMoveMenu();
+            } else if (event.data.action === 'exitMoveMode') {
+                // Lua deactivated move menu mode
+                if (event.data.confirm) {
+                    confirmMoveMenu();
+                } else {
+                    cancelMoveMenu();
                 }
             }
         });
