@@ -334,8 +334,10 @@
                 <li class="menu-item" data-menu="weaponOptions">
                     <div class="menu-link">
                         <div class="menu-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 12h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 14"></path>
+                                <path d="m7 18 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path>
+                                <path d="m2 13 6 6"></path>
                             </svg>
                             <span>Weapon Options</span>
                         </div>
@@ -381,7 +383,7 @@
                         <div class="menu-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M12 1v6m0 6v6m0-6h6M6 12H0m12-6a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                             </svg>
                             <span>Settings</span>
                         </div>
@@ -500,12 +502,9 @@
         let selectedIndex = 0;
         let isMovingMenu = false;
         let moveSpeed = 150;
-        let moveTimer = null;
         let keyHoldStart = 0;
         let originalPosition = { top: 20, right: 20 };
         
-        window.isMovingMenuActive = false;
-
         const menuContainer = document.getElementById('menuContainer');
         const moveModal = document.getElementById('moveModal');
 
@@ -577,16 +576,6 @@
                 }
                 
                 link.appendChild(wrapper);
-                
-                // KRITICKÁ OPRAVA: Pridanie event listenera pre button type
-                if (item.type === 'button' && item.name === 'Move Menu') {
-                    link.setAttribute('data-action', 'move-menu');
-                    link.addEventListener('click', () => {
-                        console.log('Move Menu clicked!');
-                        startMoveMenu();
-                    });
-                }
-                
                 li.appendChild(link);
                 submenuList.appendChild(li);
             });
@@ -635,39 +624,29 @@
         }
 
         function startMoveMenu() {
-            console.log('startMoveMenu() called!');
             isMovingMenu = true;
-            window.isMovingMenuActive = true;
             moveModal.classList.add('active');
             const rect = menuContainer.getBoundingClientRect();
             originalPosition = {
                 top: rect.top,
                 right: window.innerWidth - rect.right
             };
-            
-            window.parent.postMessage({ type: 'moveMenuStarted' }, '*');
         }
 
         function confirmMoveMenu() {
             isMovingMenu = false;
-            window.isMovingMenuActive = false;
             moveModal.classList.remove('active');
             moveSpeed = 150;
             keyHoldStart = 0;
-            
-            window.parent.postMessage({ type: 'moveMenuEnded' }, '*');
         }
 
         function cancelMoveMenu() {
             isMovingMenu = false;
-            window.isMovingMenuActive = false;
             moveModal.classList.remove('active');
             menuContainer.style.top = originalPosition.top + 'px';
             menuContainer.style.right = originalPosition.right + 'px';
             moveSpeed = 150;
             keyHoldStart = 0;
-            
-            window.parent.postMessage({ type: 'moveMenuEnded' }, '*');
         }
 
         function moveMenu(direction) {
@@ -737,55 +716,6 @@
                 }
                 return;
             }
-
-            const menuList = currentMenu === 'main' 
-                ? document.getElementById('mainMenuList')
-                : document.getElementById('submenuList');
-            
-            const items = menuList.querySelectorAll('.menu-item');
-            
-            if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                selectedIndex = (selectedIndex - 1 + items.length) % items.length;
-                selectMenuItem(selectedIndex);
-                updatePageIndicator();
-            } 
-            else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                selectedIndex = (selectedIndex + 1) % items.length;
-                selectMenuItem(selectedIndex);
-                updatePageIndicator();
-            }
-            else if (e.key === 'Enter') {
-                e.preventDefault();
-                if (currentMenu === 'main') {
-                    const selectedItem = items[selectedIndex];
-                    const menuId = selectedItem.getAttribute('data-menu');
-                    if (menuId) {
-                        showSubmenu(menuId);
-                    }
-                } else {
-                    const selectedItem = items[selectedIndex];
-                    const checkbox = selectedItem.querySelector('.checkbox-container');
-                    const link = selectedItem.querySelector('.menu-link');
-                    
-                    if (checkbox) {
-                        checkbox.classList.toggle('active');
-                    } else if (link && link.getAttribute('data-action') === 'move-menu') {
-                        // Priamo zavolaj startMoveMenu
-                        console.log('Enter pressed on Move Menu');
-                        startMoveMenu();
-                    }
-                }
-            } 
-            else if (e.key === 'Backspace') {
-                e.preventDefault();
-                if (currentMenu === 'submenu') {
-                    hideSubmenu();
-                } else if (currentMenu === 'main') {
-                    window.postMessage({ action: 'closeMenu' }, '*');
-                }
-            }
         });
 
         document.addEventListener('keyup', (e) => {
@@ -795,52 +725,51 @@
         });
 
         window.addEventListener('message', function(event) {
-            console.log('Received message:', event.data);
+            const data = event.data;
             
-            if (event.data.action === 'navigate') {
+            if (data.action === 'navigate') {
                 const menuList = currentMenu === 'main' 
                     ? document.getElementById('mainMenuList')
                     : document.getElementById('submenuList');
                 
                 const items = menuList.querySelectorAll('.menu-item');
                 
-                if (event.data.direction === 'up') {
+                if (data.direction === 'up') {
                     selectedIndex = (selectedIndex - 1 + items.length) % items.length;
                     selectMenuItem(selectedIndex);
                     updatePageIndicator();
-                } else if (event.data.direction === 'down') {
+                } else if (data.direction === 'down') {
                     selectedIndex = (selectedIndex + 1) % items.length;
                     selectMenuItem(selectedIndex);
                     updatePageIndicator();
                 }
-            } else if (event.data.action === 'select') {
-                console.log('Select action received');
-                const menuList = currentMenu === 'main' 
-                    ? document.getElementById('mainMenuList')
-                    : document.getElementById('submenuList');
-                
-                const items = menuList.querySelectorAll('.menu-item');
-                
+            } 
+            else if (data.action === 'select') {
                 if (currentMenu === 'main') {
+                    const menuList = document.getElementById('mainMenuList');
+                    const items = menuList.querySelectorAll('.menu-item');
                     const selectedItem = items[selectedIndex];
                     const menuId = selectedItem.getAttribute('data-menu');
                     if (menuId) {
                         showSubmenu(menuId);
                     }
                 } else {
-                    const selectedItem = items[selectedIndex];
-                    const checkbox = selectedItem.querySelector('.checkbox-container');
-                    const link = selectedItem.querySelector('.menu-link');
+                    const itemData = submenuData[currentSubmenu].items[selectedIndex];
                     
-                    if (checkbox) {
-                        checkbox.classList.toggle('active');
-                    } else if (link && link.getAttribute('data-action') === 'move-menu') {
-                        // KRITICKÁ OPRAVA: Priamo zavolaj startMoveMenu namiesto link.click()
-                        console.log('Move Menu activated via Lua');
+                    if (itemData.type === 'checkbox') {
+                        const menuList = document.getElementById('submenuList');
+                        const items = menuList.querySelectorAll('.menu-item');
+                        const selectedItem = items[selectedIndex];
+                        const checkbox = selectedItem.querySelector('.checkbox-container');
+                        if (checkbox) {
+                            checkbox.classList.toggle('active');
+                        }
+                    } else if (itemData.type === 'button' && itemData.name === 'Move Menu') {
                         startMoveMenu();
                     }
                 }
-            } else if (event.data.action === 'back') {
+            } 
+            else if (data.action === 'back') {
                 if (currentMenu === 'submenu') {
                     hideSubmenu();
                 }
