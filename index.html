@@ -50,9 +50,9 @@
         }
 
         .menu-header {
-            background: rgba(25, 25, 30, 0.95);
+            background: rgba(15, 15, 18, 0.98);
             padding: 14px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         .menu-title {
@@ -71,7 +71,7 @@
         }
 
         .menu-item {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .menu-item:last-child {
@@ -123,24 +123,28 @@
         .menu-icon svg {
             width: 18px;
             height: 18px;
-            opacity: 0.7;
+            opacity: 0.85;
             transition: opacity 0.2s ease;
+            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
         }
 
         .menu-item.selected .menu-icon svg {
             opacity: 1;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
         }
 
         .arrow-icon {
             width: 20px;
             height: 20px;
-            opacity: 0.5;
+            opacity: 0.6;
             transition: all 0.2s ease;
+            filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.2));
         }
 
         .menu-item.selected .arrow-icon {
-            opacity: 0.9;
+            opacity: 1;
             transform: translateX(3px);
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4));
         }
 
         .checkbox-container {
@@ -150,7 +154,7 @@
             border-radius: 11px;
             position: relative;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: background 0.4s ease;
             border: 1px solid rgba(255, 255, 255, 0.1);
             flex-shrink: 0;
         }
@@ -168,7 +172,7 @@
             top: 50%;
             left: 2px;
             transform: translateY(-50%);
-            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            transition: left 0.4s ease, background 0.4s ease;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
@@ -185,9 +189,9 @@
         }
 
         .menu-footer {
-            background: rgba(18, 18, 23, 0.95);
+            background: rgba(12, 12, 15, 0.98);
             padding: 14px 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -202,9 +206,9 @@
         .version-indicator {
             width: 8px;
             height: 8px;
-            background: rgba(120, 120, 130, 0.8);
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 50%;
-            box-shadow: 0 0 8px rgba(120, 120, 130, 0.3);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.6), 0 0 20px rgba(255, 255, 255, 0.3);
         }
 
         .version-text {
