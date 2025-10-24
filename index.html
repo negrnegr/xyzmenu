@@ -299,21 +299,6 @@
             letter-spacing: 0.3px;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .active {
-            animation: slideIn 0.3s ease;
-        }
-
         @media (max-width: 480px) {
             .menu-container {
                 max-width: 100%;
@@ -822,6 +807,9 @@
                 e.preventDefault();
                 if (currentMenu === 'submenu') {
                     hideSubmenu();
+                } else if (currentMenu === 'main') {
+                    // Close menu when in main menu
+                    window.postMessage({ action: 'closeMenu' }, '*');
                 }
             }
         });
