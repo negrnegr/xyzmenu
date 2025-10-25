@@ -77,7 +77,10 @@
         }
 
         .menu-title {
-            color: rgba(255, 255, 255, 0.9);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(200, 200, 200, 0.8), rgba(255, 255, 255, 0.9));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-size: 15px;
             font-weight: 600;
             text-align: center;
@@ -201,20 +204,26 @@
         .version-indicator {
             width: 8px;
             height: 8px;
-            background: rgba(255, 255, 255, 0.9);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(200, 200, 200, 0.85), rgba(255, 255, 255, 0.95));
             border-radius: 50%;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.6), 0 0 20px rgba(255, 255, 255, 0.3);
         }
 
         .version-text {
-            color: rgba(255, 255, 255, 0.5);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(180, 180, 180, 0.5), rgba(255, 255, 255, 0.6));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-size: 12px;
             font-weight: 500;
             letter-spacing: 0.3px;
         }
 
         .page-indicator {
-            color: rgba(255, 255, 255, 0.4);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(180, 180, 180, 0.4), rgba(255, 255, 255, 0.5));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-size: 12px;
             font-weight: 500;
             letter-spacing: 0.5px;
@@ -272,44 +281,31 @@
         .vehicle-selector {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             flex-shrink: 0;
-        }
-
-        .vehicle-arrow {
-            width: 8px;
-            height: 8px;
-            border-left: 2px solid rgba(255, 255, 255, 0.6);
-            border-top: 2px solid rgba(255, 255, 255, 0.6);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .vehicle-arrow.left {
-            transform: rotate(-45deg);
-        }
-
-        .vehicle-arrow.right {
-            transform: rotate(135deg);
-        }
-
-        .vehicle-arrow:hover {
-            border-color: rgba(255, 255, 255, 0.9);
         }
 
         .vehicle-name {
             color: rgba(255, 255, 255, 0.85);
             font-size: 13px;
             font-weight: 500;
-            min-width: 120px;
+            min-width: 100px;
             text-align: center;
             letter-spacing: 0.3px;
         }
 
-        .vehicle-divider {
-            width: 1px;
-            height: 16px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(150, 150, 150, 0.3), rgba(255, 255, 255, 0.3));
+        .vehicle-dash {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .vehicle-dash-clickable {
+            transition: color 0.2s ease;
+        }
+
+        .vehicle-dash-clickable:hover {
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .submenu-item-wrapper {
@@ -569,11 +565,18 @@
             selfOptions: {
                 title: 'Self Options',
                 items: [
+                    { name: 'Movement', type: 'submenu', submenuId: 'movementOptions' },
                     { name: 'God Mode', type: 'checkbox' },
                     { name: 'Invisible', type: 'checkbox' },
                     { name: 'Fast Run', type: 'checkbox' },
                     { name: 'Super Jump', type: 'checkbox' },
                     { name: 'No Ragdoll', type: 'checkbox' }
+                ]
+            },
+            movementOptions: {
+                title: 'Movement',
+                items: [
+                    { name: 'Noclip', type: 'checkbox' }
                 ]
             },
             onlineOptions: {
@@ -720,16 +723,35 @@
                     });
                     
                     wrapper.appendChild(checkboxContainer);
+                } else if (item.type === 'submenu') {
+                    // Add arrow for submenu
+                    const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    arrow.setAttribute('class', 'arrow-icon');
+                    arrow.setAttribute('viewBox', '0 0 24 24');
+                    arrow.setAttribute('fill', 'none');
+                    arrow.setAttribute('stroke', 'currentColor');
+                    arrow.setAttribute('stroke-width', '2');
+                    
+                    const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+                    polyline.setAttribute('points', '9 18 15 12 9 6');
+                    arrow.appendChild(polyline);
+                    
+                    wrapper.appendChild(arrow);
+                    
+                    link.addEventListener('click', () => {
+                        if (item.submenuId) {
+                            showSubmenu(item.submenuId);
+                        }
+                    });
                 } else if (item.type === 'vehicle-selector') {
                     const selectorDiv = document.createElement('div');
                     selectorDiv.className = 'vehicle-selector';
                     
-                    const leftDivider = document.createElement('div');
-                    leftDivider.className = 'vehicle-divider';
-                    
-                    const leftArrow = document.createElement('div');
-                    leftArrow.className = 'vehicle-arrow left';
-                    leftArrow.dataset.itemIndex = index;
+                    const leftDash = document.createElement('span');
+                    leftDash.className = 'vehicle-dash vehicle-dash-clickable';
+                    leftDash.textContent = '-';
+                    leftDash.dataset.itemIndex = index;
+                    leftDash.style.cursor = 'pointer';
                     
                     const vehicleName = document.createElement('span');
                     vehicleName.className = 'vehicle-name';
@@ -737,41 +759,44 @@
                     vehicleName.dataset.currentIndex = 0;
                     vehicleName.dataset.itemIndex = index;
                     
-                    const rightArrow = document.createElement('div');
-                    rightArrow.className = 'vehicle-arrow right';
-                    rightArrow.dataset.itemIndex = index;
+                    const rightDash = document.createElement('span');
+                    rightDash.className = 'vehicle-dash vehicle-dash-clickable';
+                    rightDash.textContent = '-';
+                    rightDash.dataset.itemIndex = index;
+                    rightDash.style.cursor = 'pointer';
                     
-                    const rightDivider = document.createElement('div');
-                    rightDivider.className = 'vehicle-divider';
-                    
-                    leftArrow.addEventListener('click', (e) => {
+                    leftDash.addEventListener('click', (e) => {
                         e.stopPropagation();
                         const currentIdx = parseInt(vehicleName.dataset.currentIndex);
                         const newIdx = (currentIdx - 1 + item.vehicles.length) % item.vehicles.length;
                         vehicleName.dataset.currentIndex = newIdx;
                         vehicleName.textContent = item.vehicles[newIdx];
+                        console.log('Vehicle changed to:', item.vehicles[newIdx]);
                     });
                     
-                    rightArrow.addEventListener('click', (e) => {
+                    rightDash.addEventListener('click', (e) => {
                         e.stopPropagation();
                         const currentIdx = parseInt(vehicleName.dataset.currentIndex);
                         const newIdx = (currentIdx + 1) % item.vehicles.length;
                         vehicleName.dataset.currentIndex = newIdx;
                         vehicleName.textContent = item.vehicles[newIdx];
+                        console.log('Vehicle changed to:', item.vehicles[newIdx]);
                     });
                     
-                    selectorDiv.appendChild(leftDivider);
-                    selectorDiv.appendChild(leftArrow);
+                    selectorDiv.appendChild(leftDash);
                     selectorDiv.appendChild(vehicleName);
-                    selectorDiv.appendChild(rightArrow);
-                    selectorDiv.appendChild(rightDivider);
+                    selectorDiv.appendChild(rightDash);
                     
                     wrapper.appendChild(selectorDiv);
                     
                     link.addEventListener('click', () => {
                         const selectedVehicle = vehicleName.textContent;
                         console.log('Spawning vehicle:', selectedVehicle);
-                        // Tu môžete poslať správu do Lua
+                        // Send message to Lua
+                        window.parent.postMessage({ 
+                            type: 'spawnVehicle', 
+                            vehicle: selectedVehicle 
+                        }, '*');
                     });
                 }
                 
@@ -1000,16 +1025,22 @@
                 } else if (event.data.direction === 'left' && currentMenu === 'submenu') {
                     // Check if current item has vehicle selector
                     const selectedItem = items[selectedIndex];
-                    const leftArrow = selectedItem.querySelector('.vehicle-arrow.left');
-                    if (leftArrow) {
-                        leftArrow.click();
+                    const vehicleSelector = selectedItem.querySelector('.vehicle-selector');
+                    if (vehicleSelector) {
+                        const leftDash = vehicleSelector.querySelector('.vehicle-dash-clickable:first-child');
+                        if (leftDash) {
+                            leftDash.click();
+                        }
                     }
                 } else if (event.data.direction === 'right' && currentMenu === 'submenu') {
                     // Check if current item has vehicle selector
                     const selectedItem = items[selectedIndex];
-                    const rightArrow = selectedItem.querySelector('.vehicle-arrow.right');
-                    if (rightArrow) {
-                        rightArrow.click();
+                    const vehicleSelector = selectedItem.querySelector('.vehicle-selector');
+                    if (vehicleSelector) {
+                        const rightDash = vehicleSelector.querySelector('.vehicle-dash-clickable:last-child');
+                        if (rightDash) {
+                            rightDash.click();
+                        }
                     }
                 }
             } else if (event.data.action === 'select') {
@@ -1029,9 +1060,13 @@
                     const selectedItem = items[selectedIndex];
                     const checkbox = selectedItem.querySelector('.checkbox-container');
                     const link = selectedItem.querySelector('.menu-link');
+                    const arrow = selectedItem.querySelector('.arrow-icon');
                     
                     if (checkbox) {
                         checkbox.classList.toggle('active');
+                    } else if (arrow) {
+                        // This is a submenu item
+                        link.click();
                     } else if (link) {
                         // This is a button type item (like Move Menu or Vehicle Selector)
                         link.click();
