@@ -15,8 +15,9 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
             background: transparent;
             min-height: 100vh;
-            padding: 0;
             margin: 0;
+            padding: 0;
+            overflow: hidden;
         }
 
         .menu-container {
@@ -27,7 +28,7 @@
             border-radius: 2px;
             overflow: hidden;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            position: absolute;
+            position: fixed;
             top: 20px;
             right: 20px;
         }
@@ -241,7 +242,7 @@
             background: rgba(20, 20, 25, 0.98);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 4px;
-            padding: 24px 32px;
+            padding: 30px 40px;
             display: none;
             z-index: 10000;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
@@ -257,25 +258,25 @@
 
         .modal-title {
             color: rgba(255, 255, 255, 0.95);
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             letter-spacing: 0.5px;
         }
 
         .modal-instructions {
             color: rgba(255, 255, 255, 0.7);
-            font-size: 13px;
-            margin-bottom: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
             letter-spacing: 0.3px;
         }
 
         .bind-key-display {
             color: rgba(255, 255, 255, 0.95);
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 700;
-            margin: 16px 0;
-            padding: 12px;
+            margin: 20px 0;
+            padding: 15px;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 4px;
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -301,7 +302,6 @@
             backdrop-filter: blur(10px);
             margin-bottom: 12px;
             animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            pointer-events: auto;
         }
 
         .notification.hide {
@@ -523,18 +523,19 @@
 
     <div class="move-modal" id="moveModal">
         <div class="modal-content">
-            <div class="modal-title">Move The Menu</div>
-            <div class="modal-instructions">Use Arrow Keys</div>
-            <div class="modal-instructions">Enter to Confirm</div>
+            <div class="modal-title">Use Arrow Keys to Move The Menu</div>
+            <div class="modal-instructions">Press Enter To Confirm</div>
+            <div class="modal-instructions">Press Backspace to Cancel</div>
         </div>
     </div>
 
     <div class="bind-modal" id="bindModal">
         <div class="modal-content">
-            <div class="modal-title">Bind Key</div>
-            <div class="modal-instructions">Press any key</div>
+            <div class="modal-title">Bind Key for Noclip</div>
+            <div class="modal-instructions">Press any key to bind</div>
             <div class="bind-key-display" id="bindKeyDisplay">Waiting...</div>
-            <div class="modal-instructions">Enter to confirm</div>
+            <div class="modal-instructions">Press Enter to confirm</div>
+            <div class="modal-instructions">Press Backspace to cancel</div>
         </div>
     </div>
 
@@ -603,8 +604,7 @@
                     { name: 'Key Bindings', type: 'checkbox' },
                     { name: 'Notifications', type: 'checkbox' },
                     { name: 'Save Config', type: 'checkbox' },
-                    { name: 'Move Menu', type: 'button' },
-                    { name: 'Reset Binds', type: 'button' }
+                    { name: 'Move Menu', type: 'button' }
                 ]
             }
         };
@@ -861,7 +861,7 @@
         function confirmBindKey() {
             if (pendingBindKey) {
                 noclipBoundKey = pendingBindKey;
-                showNotification('Key Bound Successfully');
+                showNotification('Noclip Key Bound Successfully');
             }
             isBindingKey = false;
             bindModal.classList.remove('active');
@@ -873,11 +873,6 @@
             bindModal.classList.remove('active');
             pendingBindKey = null;
             showNotification('Key Binding Cancelled');
-        }
-
-        function resetBinds() {
-            noclipBoundKey = null;
-            showNotification('All Binds Reset');
         }
 
         function toggleNoclip() {
@@ -956,11 +951,6 @@
                 toggleNoclip();
                 return;
             }
-
-            if (data.action === 'resetBinds') {
-                resetBinds();
-                return;
-            }
             
             if (data.action === 'navigate') {
                 const menuList = currentMenu === 'main' 
@@ -1006,12 +996,8 @@
                                 noclipEnabled = checkbox.classList.contains('active');
                             }
                         }
-                    } else if (itemData.type === 'button') {
-                        if (itemData.name === 'Move Menu') {
-                            startMoveMenu();
-                        } else if (itemData.name === 'Reset Binds') {
-                            resetBinds();
-                        }
+                    } else if (itemData.type === 'button' && itemData.name === 'Move Menu') {
+                        startMoveMenu();
                     }
                 }
             } 
