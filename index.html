@@ -689,44 +689,36 @@
             moveSpeed = 150;
         }
 
-        document.addEventListener('keydown', (e) => {
-            if (isMovingMenu) {
-                if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    handleKeyHold();
-                    moveMenu('up');
-                } else if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    handleKeyHold();
-                    moveMenu('down');
-                } else if (e.key === 'ArrowLeft') {
-                    e.preventDefault();
-                    handleKeyHold();
-                    moveMenu('left');
-                } else if (e.key === 'ArrowRight') {
-                    e.preventDefault();
-                    handleKeyHold();
-                    moveMenu('right');
-                } else if (e.key === 'Enter') {
-                    e.preventDefault();
-                    confirmMoveMenu();
-                } else if (e.key === 'Backspace') {
-                    e.preventDefault();
-                    cancelMoveMenu();
-                }
-                return;
-            }
-        });
-
-        document.addEventListener('keyup', (e) => {
-            if (isMovingMenu && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-                resetKeyHold();
-            }
-        });
-
         window.addEventListener('message', function(event) {
             const data = event.data;
             
+            // KEĎ JE MOVE REŽIM AKTÍVNY - šípky hýbu s menu
+            if (isMovingMenu) {
+                if (data.action === 'navigate') {
+                    handleKeyHold();
+                    
+                    if (data.direction === 'up') {
+                        moveMenu('up');
+                    } else if (data.direction === 'down') {
+                        moveMenu('down');
+                    } else if (data.direction === 'left') {
+                        moveMenu('left');
+                    } else if (data.direction === 'right') {
+                        moveMenu('right');
+                    }
+                } else if (data.action === 'select') {
+                    // Enter v move režime = potvrdiť
+                    confirmMoveMenu();
+                } else if (data.action === 'back') {
+                    // Backspace v move režime = zrušiť
+                    cancelMoveMenu();
+                } else if (data.action === 'keyup') {
+                    resetKeyHold();
+                }
+                return;
+            }
+            
+            // NORMÁLNY REŽIM - šípky navigujú v menu
             if (data.action === 'navigate') {
                 const menuList = currentMenu === 'main' 
                     ? document.getElementById('mainMenuList')
