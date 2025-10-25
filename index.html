@@ -21,6 +21,7 @@
             justify-content: flex-end;
             align-items: flex-start;
             padding: 20px;
+            overflow: hidden;
         }
 
         .menu-container {
@@ -291,10 +292,6 @@
             right: 20px;
             z-index: 99999;
             pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 12px;
         }
 
         .notification {
@@ -307,6 +304,7 @@
             padding: 16px 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(10px);
+            margin-bottom: 12px;
             animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             pointer-events: auto;
         }
