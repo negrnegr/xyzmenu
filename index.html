@@ -720,6 +720,13 @@
                     checkboxContainer.addEventListener('click', (e) => {
                         e.stopPropagation();
                         checkboxContainer.classList.toggle('active');
+                        
+                        if (item.name === 'Noclip') {
+                            window.parent.postMessage({ 
+                                action: 'noclipToggle', 
+                                enabled: checkboxContainer.classList.contains('active')
+                            }, '*');
+                        }
                     });
                     
                     wrapper.appendChild(checkboxContainer);
