@@ -236,18 +236,25 @@
             position: relative;
             cursor: pointer;
             transition: background 0.4s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid transparent;
             flex-shrink: 0;
+            background-image: 
+                linear-gradient(rgba(60, 60, 65, 0.8), rgba(60, 60, 65, 0.8)),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(150, 150, 150, 0.2), rgba(255, 255, 255, 0.2));
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
         }
 
         .checkbox-container.active {
-            background: rgba(100, 100, 110, 0.9);
+            background-image: 
+                linear-gradient(rgba(100, 100, 110, 0.9), rgba(100, 100, 110, 0.9)),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(180, 180, 180, 0.4), rgba(255, 255, 255, 0.4));
         }
 
         .checkbox-toggle {
             width: 18px;
             height: 18px;
-            background: rgba(180, 180, 190, 0.95);
+            background: linear-gradient(135deg, rgba(180, 180, 190, 0.95), rgba(200, 200, 210, 0.95));
             border-radius: 50%;
             position: absolute;
             top: 50%;
@@ -259,7 +266,50 @@
 
         .checkbox-container.active .checkbox-toggle {
             left: 22px;
-            background: rgba(220, 220, 230, 1);
+            background: linear-gradient(135deg, rgba(220, 220, 230, 1), rgba(240, 240, 250, 1));
+        }
+
+        .vehicle-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .vehicle-arrow {
+            width: 8px;
+            height: 8px;
+            border-left: 2px solid rgba(255, 255, 255, 0.6);
+            border-top: 2px solid rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .vehicle-arrow.left {
+            transform: rotate(-45deg);
+        }
+
+        .vehicle-arrow.right {
+            transform: rotate(135deg);
+        }
+
+        .vehicle-arrow:hover {
+            border-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .vehicle-name {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 13px;
+            font-weight: 500;
+            min-width: 120px;
+            text-align: center;
+            letter-spacing: 0.3px;
+        }
+
+        .vehicle-divider {
+            width: 1px;
+            height: 16px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(150, 150, 150, 0.3), rgba(255, 255, 255, 0.3));
         }
 
         .submenu-item-wrapper {
@@ -556,7 +606,7 @@
             vehicleOptions: {
                 title: 'Vehicle Options',
                 items: [
-                    { name: 'Spawn Vehicle', type: 'checkbox' },
+                    { name: 'Spawn Vehicle', type: 'vehicle-selector', vehicles: ['Adder', 'Zentorno', 'T20', 'Osiris', 'Turismo'] },
                     { name: 'Repair Vehicle', type: 'checkbox' },
                     { name: 'Max Speed', type: 'checkbox' },
                     { name: 'Vehicle God Mode', type: 'checkbox' }
@@ -670,6 +720,59 @@
                     });
                     
                     wrapper.appendChild(checkboxContainer);
+                } else if (item.type === 'vehicle-selector') {
+                    const selectorDiv = document.createElement('div');
+                    selectorDiv.className = 'vehicle-selector';
+                    
+                    const leftDivider = document.createElement('div');
+                    leftDivider.className = 'vehicle-divider';
+                    
+                    const leftArrow = document.createElement('div');
+                    leftArrow.className = 'vehicle-arrow left';
+                    leftArrow.dataset.itemIndex = index;
+                    
+                    const vehicleName = document.createElement('span');
+                    vehicleName.className = 'vehicle-name';
+                    vehicleName.textContent = item.vehicles[0];
+                    vehicleName.dataset.currentIndex = 0;
+                    vehicleName.dataset.itemIndex = index;
+                    
+                    const rightArrow = document.createElement('div');
+                    rightArrow.className = 'vehicle-arrow right';
+                    rightArrow.dataset.itemIndex = index;
+                    
+                    const rightDivider = document.createElement('div');
+                    rightDivider.className = 'vehicle-divider';
+                    
+                    leftArrow.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const currentIdx = parseInt(vehicleName.dataset.currentIndex);
+                        const newIdx = (currentIdx - 1 + item.vehicles.length) % item.vehicles.length;
+                        vehicleName.dataset.currentIndex = newIdx;
+                        vehicleName.textContent = item.vehicles[newIdx];
+                    });
+                    
+                    rightArrow.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const currentIdx = parseInt(vehicleName.dataset.currentIndex);
+                        const newIdx = (currentIdx + 1) % item.vehicles.length;
+                        vehicleName.dataset.currentIndex = newIdx;
+                        vehicleName.textContent = item.vehicles[newIdx];
+                    });
+                    
+                    selectorDiv.appendChild(leftDivider);
+                    selectorDiv.appendChild(leftArrow);
+                    selectorDiv.appendChild(vehicleName);
+                    selectorDiv.appendChild(rightArrow);
+                    selectorDiv.appendChild(rightDivider);
+                    
+                    wrapper.appendChild(selectorDiv);
+                    
+                    link.addEventListener('click', () => {
+                        const selectedVehicle = vehicleName.textContent;
+                        console.log('Spawning vehicle:', selectedVehicle);
+                        // Tu môžete poslať správu do Lua
+                    });
                 }
                 
                 link.appendChild(wrapper);
@@ -894,6 +997,20 @@
                     selectedIndex = (selectedIndex + 1) % items.length;
                     selectMenuItem(selectedIndex);
                     updatePageIndicator();
+                } else if (event.data.direction === 'left' && currentMenu === 'submenu') {
+                    // Check if current item has vehicle selector
+                    const selectedItem = items[selectedIndex];
+                    const leftArrow = selectedItem.querySelector('.vehicle-arrow.left');
+                    if (leftArrow) {
+                        leftArrow.click();
+                    }
+                } else if (event.data.direction === 'right' && currentMenu === 'submenu') {
+                    // Check if current item has vehicle selector
+                    const selectedItem = items[selectedIndex];
+                    const rightArrow = selectedItem.querySelector('.vehicle-arrow.right');
+                    if (rightArrow) {
+                        rightArrow.click();
+                    }
                 }
             } else if (event.data.action === 'select') {
                 const menuList = currentMenu === 'main' 
@@ -916,7 +1033,7 @@
                     if (checkbox) {
                         checkbox.classList.toggle('active');
                     } else if (link) {
-                        // This is a button type item (like Move Menu)
+                        // This is a button type item (like Move Menu or Vehicle Selector)
                         link.click();
                     }
                 }
