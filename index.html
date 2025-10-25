@@ -284,9 +284,103 @@
             border-radius: 4px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 100%;
+            max-width: 420px;
+            z-index: 99999;
+            pointer-events: none;
+        }
+
+        .notification {
+            width: 100%;
+            background: rgba(18, 18, 18, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: 3px solid #808088;
+            border-radius: 4px;
+            padding: 16px 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            margin-bottom: 12px;
+            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .notification.hide {
+            animation: slideOut 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(calc(100% + 40px));
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateY(0) translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-120%) translateX(0);
+                opacity: 0;
+            }
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+
+        .notification-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: #808088;
+        }
+
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-title {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .notification-message {
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
     </style>
 </head>
 <body>
+    <div class="notification-container" id="notificationContainer"></div>
+
     <div class="menu-container" id="menuContainer">
         <div class="banner-header">
             <img class="banner-image" src="https://negrnegr.github.io/xyzmenu/banner/banner.png" alt="XYZ Menu Banner">
@@ -536,6 +630,37 @@
         const moveModal = document.getElementById('moveModal');
         const bindModal = document.getElementById('bindModal');
         const bindKeyDisplay = document.getElementById('bindKeyDisplay');
+        const notificationContainer = document.getElementById('notificationContainer');
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            
+            const icon = '<path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
+            
+            notification.innerHTML = `
+                <div class="notification-header">
+                    <div class="notification-icon">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            ${icon}
+                        </svg>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">XYZ MENU</div>
+                        <div class="notification-message">${message}</div>
+                    </div>
+                </div>
+            `;
+            
+            notificationContainer.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('hide');
+                setTimeout(() => {
+                    notification.remove();
+                }, 400);
+            }, 3000);
+        }
 
         function updateBreadcrumb() {
             const mainTitle = document.querySelector('#mainMenu .menu-title');
@@ -602,6 +727,9 @@
                     checkboxContainer.addEventListener('click', (e) => {
                         e.stopPropagation();
                         checkboxContainer.classList.toggle('active');
+                        
+                        const status = checkboxContainer.classList.contains('active') ? 'Activated' : 'Deactivated';
+                        showNotification(`${item.name} ${status}`);
                         
                         if (item.name === 'Noclip') {
                             noclipEnabled = checkboxContainer.classList.contains('active');
@@ -674,6 +802,7 @@
             moveModal.classList.remove('active');
             moveSpeed = 150;
             keyHoldStart = 0;
+            showNotification('Menu Position Saved');
         }
 
         function cancelMoveMenu() {
@@ -683,6 +812,7 @@
             menuContainer.style.right = originalPosition.right + 'px';
             moveSpeed = 150;
             keyHoldStart = 0;
+            showNotification('Menu Move Cancelled');
         }
 
         function moveMenu(direction) {
@@ -730,13 +860,12 @@
             bindModal.classList.add('active');
             bindKeyDisplay.textContent = 'Waiting...';
             pendingBindKey = null;
-            console.log('Bind modal opened!');
         }
 
         function confirmBindKey() {
             if (pendingBindKey) {
                 noclipBoundKey = pendingBindKey;
-                console.log('Noclip bound to:', noclipBoundKey);
+                showNotification('Noclip Key Bound Successfully');
             }
             isBindingKey = false;
             bindModal.classList.remove('active');
@@ -747,10 +876,13 @@
             isBindingKey = false;
             bindModal.classList.remove('active');
             pendingBindKey = null;
+            showNotification('Key Binding Cancelled');
         }
 
         function toggleNoclip() {
             noclipEnabled = !noclipEnabled;
+            
+            showNotification(`Noclip ${noclipEnabled ? 'Activated' : 'Deactivated'}`);
             
             if (currentMenu === 'submenu' && currentSubmenu === 'selfOptions') {
                 const menuList = document.getElementById('submenuList');
@@ -773,14 +905,11 @@
 
         window.addEventListener('message', function(event) {
             const data = event.data;
-            console.log('Received message:', data);
             
-            // BIND KEY REŽIM
             if (isBindingKey) {
                 if (data.action === 'keypress') {
                     pendingBindKey = data.key;
                     bindKeyDisplay.textContent = data.keyName || data.key;
-                    console.log('Key captured:', data.keyName);
                 } else if (data.action === 'select') {
                     confirmBindKey();
                 } else if (data.action === 'back') {
@@ -789,7 +918,6 @@
                 return;
             }
             
-            // MOVE MENU REŽIM
             if (isMovingMenu) {
                 if (data.action === 'navigate') {
                     handleKeyHold();
@@ -813,27 +941,21 @@
                 return;
             }
             
-            // F9 PRESSED - OPEN BIND MENU
             if (data.action === 'bindkey') {
-                console.log('Bindkey action received!');
                 if (currentMenu === 'submenu' && currentSubmenu === 'selfOptions') {
                     const itemData = submenuData.selfOptions.items[selectedIndex];
-                    console.log('Current item:', itemData);
                     if (itemData && itemData.bindable && itemData.name === 'Noclip') {
-                        console.log('Opening bind modal...');
                         startBindKey();
                     }
                 }
                 return;
             }
             
-            // NOCLIP TOGGLE VIA BOUND KEY
             if (data.action === 'toggleNoclip') {
                 toggleNoclip();
                 return;
             }
             
-            // NORMÁLNY REŽIM
             if (data.action === 'navigate') {
                 const menuList = currentMenu === 'main' 
                     ? document.getElementById('mainMenuList')
@@ -870,6 +992,9 @@
                         const checkbox = selectedItem.querySelector('.checkbox-container');
                         if (checkbox) {
                             checkbox.classList.toggle('active');
+                            
+                            const status = checkbox.classList.contains('active') ? 'Activated' : 'Deactivated';
+                            showNotification(`${itemData.name} ${status}`);
                             
                             if (itemData.name === 'Noclip') {
                                 noclipEnabled = checkbox.classList.contains('active');
