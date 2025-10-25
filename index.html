@@ -426,7 +426,7 @@
                     <div class="version-indicator"></div>
                     <span class="version-text">Version Beta</span>
                 </div>
-                <span class="page-indicator" id="submenuPageIndicator">1 / 5</span>
+                <span class="page-indicator" id="submenuPageIndicator">1 / 6</span>
             </div>
         </div>
     </div>
@@ -528,7 +528,6 @@
         let keyHoldStart = 0;
         let originalPosition = { top: 20, right: 20 };
         
-        // Bind system
         let noclipBoundKey = null;
         let noclipEnabled = false;
         let pendingBindKey = null;
@@ -731,6 +730,7 @@
             bindModal.classList.add('active');
             bindKeyDisplay.textContent = 'Waiting...';
             pendingBindKey = null;
+            console.log('Bind modal opened!');
         }
 
         function confirmBindKey() {
@@ -752,7 +752,6 @@
         function toggleNoclip() {
             noclipEnabled = !noclipEnabled;
             
-            // Update checkbox if we're in Self Options
             if (currentMenu === 'submenu' && currentSubmenu === 'selfOptions') {
                 const menuList = document.getElementById('submenuList');
                 const items = menuList.querySelectorAll('.menu-item');
@@ -774,12 +773,14 @@
 
         window.addEventListener('message', function(event) {
             const data = event.data;
+            console.log('Received message:', data);
             
             // BIND KEY REŽIM
             if (isBindingKey) {
                 if (data.action === 'keypress') {
                     pendingBindKey = data.key;
                     bindKeyDisplay.textContent = data.keyName || data.key;
+                    console.log('Key captured:', data.keyName);
                 } else if (data.action === 'select') {
                     confirmBindKey();
                 } else if (data.action === 'back') {
@@ -812,18 +813,21 @@
                 return;
             }
             
-            // CHECK FOR BIND KEY ACTIVATION (F9)
-            if (data.action === 'bindk') {
+            // F9 PRESSED - OPEN BIND MENU
+            if (data.action === 'bindkey') {
+                console.log('Bindkey action received!');
                 if (currentMenu === 'submenu' && currentSubmenu === 'selfOptions') {
                     const itemData = submenuData.selfOptions.items[selectedIndex];
+                    console.log('Current item:', itemData);
                     if (itemData && itemData.bindable && itemData.name === 'Noclip') {
+                        console.log('Opening bind modal...');
                         startBindKey();
                     }
                 }
                 return;
             }
             
-            // CHECK FOR NOCLIP TOGGLE VIA BOUND KEY
+            // NOCLIP TOGGLE VIA BOUND KEY
             if (data.action === 'toggleNoclip') {
                 toggleNoclip();
                 return;
