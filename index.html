@@ -15,9 +15,12 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
             background: transparent;
             min-height: 100vh;
-            margin: 0;
             padding: 0;
-            overflow: hidden;
+            margin: 0;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-start;
+            padding: 20px;
         }
 
         .menu-container {
@@ -28,9 +31,21 @@
             border-radius: 2px;
             overflow: hidden;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            position: fixed;
+            position: absolute;
             top: 20px;
             right: 20px;
+        }
+
+        .menu-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.02);
+            pointer-events: none;
+            z-index: -1;
         }
 
         .banner-header {
@@ -53,6 +68,12 @@
             background: rgba(15, 15, 18, 0.98);
             padding: 14px 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1.5px solid transparent;
+            background-image: 
+                linear-gradient(rgba(15, 15, 18, 0.98), rgba(15, 15, 18, 0.98)),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(180, 180, 180, 0.5), rgba(255, 255, 255, 0.6));
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
         }
 
         .menu-title {
@@ -101,7 +122,7 @@
             top: 0;
             height: 100%;
             width: 3px;
-            background: linear-gradient(180deg, #808088, #606068);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(150, 150, 150, 0.6), rgba(255, 255, 255, 0.6));
             transform: translateX(-3px);
             transition: transform 0.2s ease;
         }
@@ -109,6 +130,12 @@
         .menu-item.selected .menu-link {
             background: rgba(255, 255, 255, 0.04);
             color: rgba(255, 255, 255, 0.95);
+            border: 1px solid transparent;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.04)),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(150, 150, 150, 0.4), rgba(255, 255, 255, 0.4));
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
         }
 
         .menu-item.selected .menu-link::before {
@@ -131,7 +158,8 @@
 
         .menu-item.selected .menu-icon svg {
             opacity: 1;
-            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5)) drop-shadow(0 0 2px rgba(150, 150, 150, 0.4));
+            stroke: url(#iconGradient);
         }
 
         .arrow-icon {
@@ -145,7 +173,8 @@
         .menu-item.selected .arrow-icon {
             opacity: 1;
             transform: translateX(3px);
-            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4));
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 2px rgba(150, 150, 150, 0.4));
+            stroke: url(#arrowGradient);
         }
 
         .menu-footer {
@@ -155,6 +184,12 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            border: 1.5px solid transparent;
+            background-image: 
+                linear-gradient(rgba(12, 12, 15, 0.98), rgba(12, 12, 15, 0.98)),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(180, 180, 180, 0.5), rgba(255, 255, 255, 0.6));
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
         }
 
         .version-info {
@@ -229,157 +264,104 @@
 
         .submenu-item-wrapper {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             width: 100%;
         }
 
-        .move-modal, .bind-modal {
+        .normal-button {
+            padding: 8px 16px;
+            background: rgba(80, 80, 90, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .normal-button:hover {
+            background: rgba(100, 100, 110, 0.9);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: rgba(255, 255, 255, 1);
+        }
+
+        .move-modal {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(20, 20, 25, 0.98);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            padding: 30px 40px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
             display: none;
+            align-items: center;
+            justify-content: center;
             z-index: 10000;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
         }
 
-        .move-modal.active, .bind-modal.active {
-            display: block;
+        .move-modal.active {
+            display: flex;
         }
 
-        .modal-content {
+        .move-modal-content {
+            background: linear-gradient(135deg, rgba(25, 25, 30, 0.98), rgba(18, 18, 23, 0.98));
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 4px;
+            padding: 32px 40px;
             text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            max-width: 400px;
         }
 
-        .modal-title {
+        .move-modal-title {
             color: rgba(255, 255, 255, 0.95);
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             letter-spacing: 0.5px;
         }
 
-        .modal-instructions {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            margin-bottom: 10px;
+        .move-modal-instructions {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 11px;
+            margin-bottom: 8px;
             letter-spacing: 0.3px;
         }
 
-        .bind-key-display {
-            color: rgba(255, 255, 255, 0.95);
-            font-size: 24px;
-            font-weight: 700;
-            margin: 20px 0;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .notification-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 99999;
-            pointer-events: none;
-        }
-
-        .notification {
-            width: 420px;
-            max-width: calc(100vw - 40px);
-            background: rgba(18, 18, 18, 0.96);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-left: 3px solid #808088;
-            border-radius: 4px;
-            padding: 16px 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(10px);
-            margin-bottom: 12px;
-            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .notification.hide {
-            animation: slideOut 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(calc(100% + 40px));
-                opacity: 0;
+        @media (max-width: 480px) {
+            .menu-container {
+                max-width: 100%;
             }
-            to {
-                transform: translateX(0);
-                opacity: 1;
+
+            .menu-link {
+                padding: 13px 16px;
+                font-size: 13px;
             }
-        }
-
-        @keyframes slideOut {
-            from {
-                transform: translateY(0) translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateY(-120%) translateX(0);
-                opacity: 0;
-            }
-        }
-
-        .notification-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-        }
-
-        .notification-icon {
-            width: 20px;
-            height: 20px;
-            flex-shrink: 0;
-            margin-right: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .notification-icon svg {
-            width: 20px;
-            height: 20px;
-            stroke: #808088;
-        }
-
-        .notification-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .notification-title {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            line-height: 1.4;
-        }
-
-        .notification-message {
-            color: rgba(255, 255, 255, 0.65);
-            font-size: 13px;
-            font-weight: 400;
-            line-height: 1.5;
-            word-wrap: break-word;
         }
     </style>
 </head>
 <body>
-    <div class="notification-container" id="notificationContainer"></div>
+    <svg style="position: absolute; width: 0; height: 0;">
+        <defs>
+            <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:rgba(255,255,255,0.9);stop-opacity:1" />
+                <stop offset="50%" style="stop-color:rgba(180,180,180,0.8);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:rgba(255,255,255,0.9);stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:rgba(255,255,255,0.9);stop-opacity:1" />
+                <stop offset="50%" style="stop-color:rgba(180,180,180,0.8);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:rgba(255,255,255,0.9);stop-opacity:1" />
+            </linearGradient>
+        </defs>
+    </svg>
 
     <div class="menu-container" id="menuContainer">
         <div class="banner-header">
-            <img class="banner-image" src="https://negrnegr.github.io/xyzmenu/banner/banner.png" alt="XYZ Menu Banner">
+            <img src="https://negrnegr.github.io/xyzmenu/banner/banner.png" alt="XYZ Menu Banner" class="banner-image">
         </div>
 
         <div id="mainMenu">
@@ -406,8 +388,11 @@
                 <li class="menu-item" data-menu="onlineOptions">
                     <div class="menu-link">
                         <div class="menu-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                             </svg>
                             <span>Online Options</span>
                         </div>
@@ -516,26 +501,16 @@
                     <div class="version-indicator"></div>
                     <span class="version-text">Version Beta</span>
                 </div>
-                <span class="page-indicator" id="submenuPageIndicator">1 / 6</span>
+                <span class="page-indicator" id="submenuPageIndicator">1 / 5</span>
             </div>
         </div>
     </div>
 
     <div class="move-modal" id="moveModal">
-        <div class="modal-content">
-            <div class="modal-title">Use Arrow Keys to Move The Menu</div>
-            <div class="modal-instructions">Press Enter To Confirm</div>
-            <div class="modal-instructions">Press Backspace to Cancel</div>
-        </div>
-    </div>
-
-    <div class="bind-modal" id="bindModal">
-        <div class="modal-content">
-            <div class="modal-title">Bind Key for Noclip</div>
-            <div class="modal-instructions">Press any key to bind</div>
-            <div class="bind-key-display" id="bindKeyDisplay">Waiting...</div>
-            <div class="modal-instructions">Press Enter to confirm</div>
-            <div class="modal-instructions">Press Backspace to cancel</div>
+        <div class="move-modal-content">
+            <div class="move-modal-title">Use Arrow Keys to Move The Menu</div>
+            <div class="move-modal-instructions">Press Enter To Confirm</div>
+            <div class="move-modal-instructions">Press Backspace to Cancel</div>
         </div>
     </div>
 
@@ -544,7 +519,6 @@
             selfOptions: {
                 title: 'Self Options',
                 items: [
-                    { name: 'Noclip', type: 'checkbox', bindable: true },
                     { name: 'God Mode', type: 'checkbox' },
                     { name: 'Invisible', type: 'checkbox' },
                     { name: 'Fast Run', type: 'checkbox' },
@@ -573,19 +547,19 @@
             weaponOptions: {
                 title: 'Weapon Options',
                 items: [
-                    { name: 'Infinite Ammo', type: 'checkbox' },
-                    { name: 'No Reload', type: 'checkbox' },
-                    { name: 'Rapid Fire', type: 'checkbox' },
-                    { name: 'Teleport Gun', type: 'checkbox' }
+                    { name: 'Give All Weapons', type: 'checkbox' },
+                    { name: 'Remove All Weapons', type: 'checkbox' },
+                    { name: 'Max Ammo', type: 'checkbox' },
+                    { name: 'Weapon Damage', type: 'checkbox' }
                 ]
             },
             vehicleOptions: {
                 title: 'Vehicle Options',
                 items: [
-                    { name: 'Vehicle God Mode', type: 'checkbox' },
-                    { name: 'Super Speed', type: 'checkbox' },
-                    { name: 'Rainbow Lights', type: 'checkbox' },
-                    { name: 'Boost', type: 'checkbox' }
+                    { name: 'Spawn Vehicle', type: 'checkbox' },
+                    { name: 'Repair Vehicle', type: 'checkbox' },
+                    { name: 'Max Speed', type: 'checkbox' },
+                    { name: 'Vehicle God Mode', type: 'checkbox' }
                 ]
             },
             miscOptions: {
@@ -601,7 +575,6 @@
                 title: 'Settings',
                 items: [
                     { name: 'Menu Theme', type: 'checkbox' },
-                    { name: 'Key Bindings', type: 'checkbox' },
                     { name: 'Notifications', type: 'checkbox' },
                     { name: 'Save Config', type: 'checkbox' },
                     { name: 'Move Menu', type: 'button' }
@@ -613,50 +586,22 @@
         let currentSubmenu = null;
         let selectedIndex = 0;
         let isMovingMenu = false;
-        let isBindingKey = false;
         let moveSpeed = 150;
+        let moveTimer = null;
         let keyHoldStart = 0;
         let originalPosition = { top: 20, right: 20 };
         
-        let noclipBoundKey = null;
-        let noclipEnabled = false;
-        let pendingBindKey = null;
+        // Expose state to Lua
+        window.menuState = {
+            isMovingMenu: false,
+            currentMenu: 'main'
+        };
         
+        // Global variable that Lua can check
+        window.isMovingMenuActive = false;
+
         const menuContainer = document.getElementById('menuContainer');
         const moveModal = document.getElementById('moveModal');
-        const bindModal = document.getElementById('bindModal');
-        const bindKeyDisplay = document.getElementById('bindKeyDisplay');
-        const notificationContainer = document.getElementById('notificationContainer');
-
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            
-            const icon = '<path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
-            
-            notification.innerHTML = `
-                <div class="notification-header">
-                    <div class="notification-icon">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            ${icon}
-                        </svg>
-                    </div>
-                    <div class="notification-content">
-                        <div class="notification-title">XYZ MENU</div>
-                        <div class="notification-message">${message}</div>
-                    </div>
-                </div>
-            `;
-            
-            notificationContainer.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.classList.add('hide');
-                setTimeout(() => {
-                    notification.remove();
-                }, 400);
-            }, 3000);
-        }
 
         function updateBreadcrumb() {
             const mainTitle = document.querySelector('#mainMenu .menu-title');
@@ -676,21 +621,23 @@
                 : document.getElementById('submenuList');
             
             const items = menuList.querySelectorAll('.menu-item');
-            items.forEach((item, i) => {
-                if (i === index) {
-                    item.classList.add('selected');
-                } else {
-                    item.classList.remove('selected');
-                }
-            });
+            
+            items.forEach(item => item.classList.remove('selected'));
+            
+            if (items[index]) {
+                items[index].classList.add('selected');
+                selectedIndex = index;
+            }
         }
 
         function showSubmenu(menuId) {
+            const data = submenuData[menuId];
+            if (!data) return;
+            
             currentMenu = 'submenu';
             currentSubmenu = menuId;
             selectedIndex = 0;
             
-            const data = submenuData[menuId];
             const mainMenu = document.getElementById('mainMenu');
             const submenuContainer = document.getElementById('submenuContainer');
             const submenuList = document.getElementById('submenuList');
@@ -715,27 +662,24 @@
                 if (item.type === 'checkbox') {
                     const checkboxContainer = document.createElement('div');
                     checkboxContainer.className = 'checkbox-container';
-                    if (item.name === 'Noclip' && noclipEnabled) {
-                        checkboxContainer.classList.add('active');
-                    }
                     checkboxContainer.innerHTML = '<div class="checkbox-toggle"></div>';
                     
                     checkboxContainer.addEventListener('click', (e) => {
                         e.stopPropagation();
                         checkboxContainer.classList.toggle('active');
-                        
-                        const status = checkboxContainer.classList.contains('active') ? 'Activated' : 'Deactivated';
-                        showNotification(`${item.name} ${status}`);
-                        
-                        if (item.name === 'Noclip') {
-                            noclipEnabled = checkboxContainer.classList.contains('active');
-                        }
                     });
                     
                     wrapper.appendChild(checkboxContainer);
                 }
                 
                 link.appendChild(wrapper);
+                
+                if (item.type === 'button' && item.name === 'Move Menu') {
+                    link.addEventListener('click', () => {
+                        startMoveMenu();
+                    });
+                }
+                
                 li.appendChild(link);
                 submenuList.appendChild(li);
             });
@@ -768,12 +712,11 @@
             });
             
             updateBreadcrumb();
-            updatePageIndicator();
         }
 
         function updatePageIndicator() {
-            const indicator = currentMenu === 'main'
-                ? document.querySelector('#mainMenu .page-indicator')
+            const indicator = currentMenu === 'main' 
+                ? document.querySelector('.page-indicator')
                 : document.getElementById('submenuPageIndicator');
             
             const totalItems = currentMenu === 'main' 
@@ -785,6 +728,7 @@
 
         function startMoveMenu() {
             isMovingMenu = true;
+            window.menuState.isMovingMenu = true;
             moveModal.classList.add('active');
             const rect = menuContainer.getBoundingClientRect();
             originalPosition = {
@@ -795,20 +739,20 @@
 
         function confirmMoveMenu() {
             isMovingMenu = false;
+            window.menuState.isMovingMenu = false;
             moveModal.classList.remove('active');
             moveSpeed = 150;
             keyHoldStart = 0;
-            showNotification('Menu Position Saved');
         }
 
         function cancelMoveMenu() {
             isMovingMenu = false;
+            window.menuState.isMovingMenu = false;
             moveModal.classList.remove('active');
             menuContainer.style.top = originalPosition.top + 'px';
             menuContainer.style.right = originalPosition.right + 'px';
             moveSpeed = 150;
             keyHoldStart = 0;
-            showNotification('Menu Move Cancelled');
         }
 
         function moveMenu(direction) {
@@ -851,159 +795,144 @@
             moveSpeed = 150;
         }
 
-        function startBindKey() {
-            isBindingKey = true;
-            bindModal.classList.add('active');
-            bindKeyDisplay.textContent = 'Waiting...';
-            pendingBindKey = null;
-        }
-
-        function confirmBindKey() {
-            if (pendingBindKey) {
-                noclipBoundKey = pendingBindKey;
-                showNotification('Noclip Key Bound Successfully');
-            }
-            isBindingKey = false;
-            bindModal.classList.remove('active');
-            pendingBindKey = null;
-        }
-
-        function cancelBindKey() {
-            isBindingKey = false;
-            bindModal.classList.remove('active');
-            pendingBindKey = null;
-            showNotification('Key Binding Cancelled');
-        }
-
-        function toggleNoclip() {
-            noclipEnabled = !noclipEnabled;
-            
-            showNotification(`Noclip ${noclipEnabled ? 'Activated' : 'Deactivated'}`);
-            
-            if (currentMenu === 'submenu' && currentSubmenu === 'selfOptions') {
-                const menuList = document.getElementById('submenuList');
-                const items = menuList.querySelectorAll('.menu-item');
-                items.forEach((item, index) => {
-                    const itemData = submenuData.selfOptions.items[index];
-                    if (itemData.name === 'Noclip') {
-                        const checkbox = item.querySelector('.checkbox-container');
-                        if (checkbox) {
-                            if (noclipEnabled) {
-                                checkbox.classList.add('active');
-                            } else {
-                                checkbox.classList.remove('active');
-                            }
-                        }
-                    }
-                });
-            }
-        }
-
-        window.addEventListener('message', function(event) {
-            const data = event.data;
-            
-            if (isBindingKey) {
-                if (data.action === 'keypress') {
-                    pendingBindKey = data.key;
-                    bindKeyDisplay.textContent = data.keyName || data.key;
-                } else if (data.action === 'select') {
-                    confirmBindKey();
-                } else if (data.action === 'back') {
-                    cancelBindKey();
-                }
-                return;
-            }
-            
+        document.addEventListener('keydown', (e) => {
             if (isMovingMenu) {
-                if (data.action === 'navigate') {
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
                     handleKeyHold();
-                    
-                    if (data.direction === 'up') {
-                        moveMenu('up');
-                    } else if (data.direction === 'down') {
-                        moveMenu('down');
-                    } else if (data.direction === 'left') {
-                        moveMenu('left');
-                    } else if (data.direction === 'right') {
-                        moveMenu('right');
-                    }
-                } else if (data.action === 'select') {
+                    moveMenu('up');
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    handleKeyHold();
+                    moveMenu('down');
+                } else if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    handleKeyHold();
+                    moveMenu('left');
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    handleKeyHold();
+                    moveMenu('right');
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
                     confirmMoveMenu();
-                } else if (data.action === 'back') {
+                } else if (e.key === 'Backspace') {
+                    e.preventDefault();
                     cancelMoveMenu();
-                } else if (data.action === 'keyup') {
-                    resetKeyHold();
                 }
                 return;
             }
+
+            const menuList = currentMenu === 'main' 
+                ? document.getElementById('mainMenuList')
+                : document.getElementById('submenuList');
             
-            if (data.action === 'bindkey') {
-                if (currentMenu === 'submenu' && currentSubmenu === 'selfOptions') {
-                    const itemData = submenuData.selfOptions.items[selectedIndex];
-                    if (itemData && itemData.bindable && itemData.name === 'Noclip') {
-                        startBindKey();
-                    }
-                }
-                return;
-            }
+            const items = menuList.querySelectorAll('.menu-item');
             
-            if (data.action === 'toggleNoclip') {
-                toggleNoclip();
-                return;
-            }
-            
-            if (data.action === 'navigate') {
-                const menuList = currentMenu === 'main' 
-                    ? document.getElementById('mainMenuList')
-                    : document.getElementById('submenuList');
-                
-                const items = menuList.querySelectorAll('.menu-item');
-                
-                if (data.direction === 'up') {
-                    selectedIndex = (selectedIndex - 1 + items.length) % items.length;
-                    selectMenuItem(selectedIndex);
-                    updatePageIndicator();
-                } else if (data.direction === 'down') {
-                    selectedIndex = (selectedIndex + 1) % items.length;
-                    selectMenuItem(selectedIndex);
-                    updatePageIndicator();
-                }
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+                selectMenuItem(selectedIndex);
+                updatePageIndicator();
             } 
-            else if (data.action === 'select') {
+            else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex + 1) % items.length;
+                selectMenuItem(selectedIndex);
+                updatePageIndicator();
+            }
+            else if (e.key === 'Enter') {
+                e.preventDefault();
                 if (currentMenu === 'main') {
-                    const menuList = document.getElementById('mainMenuList');
-                    const items = menuList.querySelectorAll('.menu-item');
                     const selectedItem = items[selectedIndex];
                     const menuId = selectedItem.getAttribute('data-menu');
                     if (menuId) {
                         showSubmenu(menuId);
                     }
                 } else {
-                    const itemData = submenuData[currentSubmenu].items[selectedIndex];
+                    const selectedItem = items[selectedIndex];
+                    const checkbox = selectedItem.querySelector('.checkbox-container');
+                    const link = selectedItem.querySelector('.menu-link');
                     
-                    if (itemData.type === 'checkbox') {
-                        const menuList = document.getElementById('submenuList');
-                        const items = menuList.querySelectorAll('.menu-item');
-                        const selectedItem = items[selectedIndex];
-                        const checkbox = selectedItem.querySelector('.checkbox-container');
-                        if (checkbox) {
-                            checkbox.classList.toggle('active');
-                            
-                            const status = checkbox.classList.contains('active') ? 'Activated' : 'Deactivated';
-                            showNotification(`${itemData.name} ${status}`);
-                            
-                            if (itemData.name === 'Noclip') {
-                                noclipEnabled = checkbox.classList.contains('active');
-                            }
-                        }
-                    } else if (itemData.type === 'button' && itemData.name === 'Move Menu') {
-                        startMoveMenu();
+                    if (checkbox) {
+                        checkbox.classList.toggle('active');
+                    } else if (link) {
+                        link.click();
                     }
                 }
             } 
-            else if (data.action === 'back') {
+            else if (e.key === 'Backspace') {
+                e.preventDefault();
                 if (currentMenu === 'submenu') {
                     hideSubmenu();
+                } else if (currentMenu === 'main') {
+                    // Close menu when in main menu
+                    window.postMessage({ action: 'closeMenu' }, '*');
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (isMovingMenu && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                resetKeyHold();
+            }
+        });
+
+        window.addEventListener('message', function(event) {
+            if (event.data.action === 'navigate') {
+                const menuList = currentMenu === 'main' 
+                    ? document.getElementById('mainMenuList')
+                    : document.getElementById('submenuList');
+                
+                const items = menuList.querySelectorAll('.menu-item');
+                
+                if (event.data.direction === 'up') {
+                    selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+                    selectMenuItem(selectedIndex);
+                    updatePageIndicator();
+                } else if (event.data.direction === 'down') {
+                    selectedIndex = (selectedIndex + 1) % items.length;
+                    selectMenuItem(selectedIndex);
+                    updatePageIndicator();
+                }
+            } else if (event.data.action === 'select') {
+                const menuList = currentMenu === 'main' 
+                    ? document.getElementById('mainMenuList')
+                    : document.getElementById('submenuList');
+                
+                const items = menuList.querySelectorAll('.menu-item');
+                
+                if (currentMenu === 'main') {
+                    const selectedItem = items[selectedIndex];
+                    const menuId = selectedItem.getAttribute('data-menu');
+                    if (menuId) {
+                        showSubmenu(menuId);
+                    }
+                } else {
+                    const selectedItem = items[selectedIndex];
+                    const checkbox = selectedItem.querySelector('.checkbox-container');
+                    const link = selectedItem.querySelector('.menu-link');
+                    
+                    if (checkbox) {
+                        checkbox.classList.toggle('active');
+                    } else if (link) {
+                        // This is a button type item (like Move Menu)
+                        link.click();
+                    }
+                }
+            } else if (event.data.action === 'back') {
+                if (currentMenu === 'submenu') {
+                    hideSubmenu();
+                }
+            } else if (event.data.action === 'enterMoveMode') {
+                // Lua activated move menu mode
+                startMoveMenu();
+            } else if (event.data.action === 'exitMoveMode') {
+                // Lua deactivated move menu mode
+                if (event.data.confirm) {
+                    confirmMoveMenu();
+                } else {
+                    cancelMoveMenu();
                 }
             }
         });
