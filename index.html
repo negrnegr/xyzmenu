@@ -237,7 +237,7 @@
             width: 100%;
         }
 
-        .move-modal {
+        .move-modal, .bind-modal {
             position: fixed;
             top: 50%;
             left: 50%;
@@ -251,15 +251,15 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
         }
 
-        .move-modal.active {
+        .move-modal.active, .bind-modal.active {
             display: block;
         }
 
-        .move-modal-content {
+        .modal-content {
             text-align: center;
         }
 
-        .move-modal-title {
+        .modal-title {
             color: rgba(255, 255, 255, 0.95);
             font-size: 18px;
             font-weight: 600;
@@ -267,11 +267,22 @@
             letter-spacing: 0.5px;
         }
 
-        .move-modal-instructions {
+        .modal-instructions {
             color: rgba(255, 255, 255, 0.7);
             font-size: 14px;
             margin-bottom: 10px;
             letter-spacing: 0.3px;
+        }
+
+        .bind-key-display {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 24px;
+            font-weight: 700;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
@@ -421,10 +432,20 @@
     </div>
 
     <div class="move-modal" id="moveModal">
-        <div class="move-modal-content">
-            <div class="move-modal-title">Use Arrow Keys to Move The Menu</div>
-            <div class="move-modal-instructions">Press Enter To Confirm</div>
-            <div class="move-modal-instructions">Press Backspace to Cancel</div>
+        <div class="modal-content">
+            <div class="modal-title">Use Arrow Keys to Move The Menu</div>
+            <div class="modal-instructions">Press Enter To Confirm</div>
+            <div class="modal-instructions">Press Backspace to Cancel</div>
+        </div>
+    </div>
+
+    <div class="bind-modal" id="bindModal">
+        <div class="modal-content">
+            <div class="modal-title">Bind Key for Noclip</div>
+            <div class="modal-instructions">Press any key to bind</div>
+            <div class="bind-key-display" id="bindKeyDisplay">Waiting...</div>
+            <div class="modal-instructions">Press Enter to confirm</div>
+            <div class="modal-instructions">Press Backspace to cancel</div>
         </div>
     </div>
 
@@ -433,6 +454,7 @@
             selfOptions: {
                 title: 'Self Options',
                 items: [
+                    { name: 'Noclip', type: 'checkbox', bindable: true },
                     { name: 'God Mode', type: 'checkbox' },
                     { name: 'Invisible', type: 'checkbox' },
                     { name: 'Fast Run', type: 'checkbox' },
@@ -501,12 +523,20 @@
         let currentSubmenu = null;
         let selectedIndex = 0;
         let isMovingMenu = false;
+        let isBindingKey = false;
         let moveSpeed = 150;
         let keyHoldStart = 0;
         let originalPosition = { top: 20, right: 20 };
         
+        // Bind system
+        let noclipBoundKey = null;
+        let noclipEnabled = false;
+        let pendingBindKey = null;
+        
         const menuContainer = document.getElementById('menuContainer');
         const moveModal = document.getElementById('moveModal');
+        const bindModal = document.getElementById('bindModal');
+        const bindKeyDisplay = document.getElementById('bindKeyDisplay');
 
         function updateBreadcrumb() {
             const mainTitle = document.querySelector('#mainMenu .menu-title');
@@ -565,11 +595,18 @@
                 if (item.type === 'checkbox') {
                     const checkboxContainer = document.createElement('div');
                     checkboxContainer.className = 'checkbox-container';
+                    if (item.name === 'Noclip' && noclipEnabled) {
+                        checkboxContainer.classList.add('active');
+                    }
                     checkboxContainer.innerHTML = '<div class="checkbox-toggle"></div>';
                     
                     checkboxContainer.addEventListener('click', (e) => {
                         e.stopPropagation();
                         checkboxContainer.classList.toggle('active');
+                        
+                        if (item.name === 'Noclip') {
+                            noclipEnabled = checkboxContainer.classList.contains('active');
+                        }
                     });
                     
                     wrapper.appendChild(checkboxContainer);
@@ -689,10 +726,69 @@
             moveSpeed = 150;
         }
 
+        function startBindKey() {
+            isBindingKey = true;
+            bindModal.classList.add('active');
+            bindKeyDisplay.textContent = 'Waiting...';
+            pendingBindKey = null;
+        }
+
+        function confirmBindKey() {
+            if (pendingBindKey) {
+                noclipBoundKey = pendingBindKey;
+                console.log('Noclip bound to:', noclipBoundKey);
+            }
+            isBindingKey = false;
+            bindModal.classList.remove('active');
+            pendingBindKey = null;
+        }
+
+        function cancelBindKey() {
+            isBindingKey = false;
+            bindModal.classList.remove('active');
+            pendingBindKey = null;
+        }
+
+        function toggleNoclip() {
+            noclipEnabled = !noclipEnabled;
+            
+            // Update checkbox if we're in Self Options
+            if (currentMenu === 'submenu' && currentSubmenu === 'selfOptions') {
+                const menuList = document.getElementById('submenuList');
+                const items = menuList.querySelectorAll('.menu-item');
+                items.forEach((item, index) => {
+                    const itemData = submenuData.selfOptions.items[index];
+                    if (itemData.name === 'Noclip') {
+                        const checkbox = item.querySelector('.checkbox-container');
+                        if (checkbox) {
+                            if (noclipEnabled) {
+                                checkbox.classList.add('active');
+                            } else {
+                                checkbox.classList.remove('active');
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
         window.addEventListener('message', function(event) {
             const data = event.data;
             
-            // KEĎ JE MOVE REŽIM AKTÍVNY - šípky hýbu s menu
+            // BIND KEY REŽIM
+            if (isBindingKey) {
+                if (data.action === 'keypress') {
+                    pendingBindKey = data.key;
+                    bindKeyDisplay.textContent = data.keyName || data.key;
+                } else if (data.action === 'select') {
+                    confirmBindKey();
+                } else if (data.action === 'back') {
+                    cancelBindKey();
+                }
+                return;
+            }
+            
+            // MOVE MENU REŽIM
             if (isMovingMenu) {
                 if (data.action === 'navigate') {
                     handleKeyHold();
@@ -707,10 +803,8 @@
                         moveMenu('right');
                     }
                 } else if (data.action === 'select') {
-                    // Enter v move režime = potvrdiť
                     confirmMoveMenu();
                 } else if (data.action === 'back') {
-                    // Backspace v move režime = zrušiť
                     cancelMoveMenu();
                 } else if (data.action === 'keyup') {
                     resetKeyHold();
@@ -718,7 +812,24 @@
                 return;
             }
             
-            // NORMÁLNY REŽIM - šípky navigujú v menu
+            // CHECK FOR BIND KEY ACTIVATION (F9)
+            if (data.action === 'bindk') {
+                if (currentMenu === 'submenu' && currentSubmenu === 'selfOptions') {
+                    const itemData = submenuData.selfOptions.items[selectedIndex];
+                    if (itemData && itemData.bindable && itemData.name === 'Noclip') {
+                        startBindKey();
+                    }
+                }
+                return;
+            }
+            
+            // CHECK FOR NOCLIP TOGGLE VIA BOUND KEY
+            if (data.action === 'toggleNoclip') {
+                toggleNoclip();
+                return;
+            }
+            
+            // NORMÁLNY REŽIM
             if (data.action === 'navigate') {
                 const menuList = currentMenu === 'main' 
                     ? document.getElementById('mainMenuList')
@@ -755,6 +866,10 @@
                         const checkbox = selectedItem.querySelector('.checkbox-container');
                         if (checkbox) {
                             checkbox.classList.toggle('active');
+                            
+                            if (itemData.name === 'Noclip') {
+                                noclipEnabled = checkbox.classList.contains('active');
+                            }
                         }
                     } else if (itemData.type === 'button' && itemData.name === 'Move Menu') {
                         startMoveMenu();
